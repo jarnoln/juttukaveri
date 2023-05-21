@@ -7,8 +7,9 @@ def transcribe_file(speech_file):
     audio_file = speech_recognition.AudioFile(speech_file)
     with audio_file as source:
         audio = recognizer.record(source)
-        result = recognizer.recognize_google(audio, language='fi-FI')
-        print(result)
+        result_google = recognizer.recognize_google(audio, language='fi-FI')
+        print('Google:')
+        print(result_google)
 
 
 if __name__ == "__main__":
