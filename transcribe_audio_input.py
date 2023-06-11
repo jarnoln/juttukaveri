@@ -3,13 +3,15 @@ import openai
 import os
 import pyttsx3
 import speech_recognition
-import time
+# import time
+import typing
 
 
 OPENAI_KEY = os.environ.get('OPENAI_KEY', '')
+LANGUAGE = 'fi-FI'
 
 
-def print_tts_info(tts):
+def print_tts_info(tts) -> None:
     voices = tts.getProperty('voices')
     for voice in voices:
         print(voice)
@@ -18,7 +20,7 @@ def print_tts_info(tts):
     print(rate)
 
 
-def create_response_text(messages):
+def create_response_text(messages: typing.List) -> str:
     print('Sending messages:')
     print(messages)
     response = openai.ChatCompletion.create(
@@ -31,21 +33,32 @@ def create_response_text(messages):
     return response_text
 
 
-def transcribe_audio_input():
+def transcribe_audio_input(language: str, age: int) -> None:
+    print('language: {}'.format(language))
     recognizer = speech_recognition.Recognizer()
     mic = speech_recognition.Microphone()
     tts = pyttsx3.init()
     # print_tts_info(tts)
-    tts.setProperty('voice', 'finnish')
     tts.setProperty('rate', 120)
-    greet = 'Hei! Kuka sinä olet?'
+    if language.startswith('fi'):
+        language_code = 'fi-FI'
+        tts.setProperty('voice', 'finnish')
+        greet = 'Hei! Kuka sinä olet?'
+        context = 'Olet ystävällinen lastenopettaja. Keskustelet {}-vuotiaan lapsen kanssa.'.format(age)
+    else:
+        language_code = 'en-US'
+        tts.setProperty('voice', 'english')
+        greet = 'Hello! What is your name?'
+        context = 'You are a friendly kindergarten teacher. You are discussing with a {}-year old child.'.format(age)
+
     print(greet)
     tts.say(greet)
     tts.runAndWait()
     messages = [
-        {"role": "system", "content": "Olet ystävällinen lastenopettaja. Keskustelet 4-vuotiaan lapsen kanssa."},
+        {"role": "system", "content": context},
         {"role": "assistant", "content": greet}
     ]
+
     while True:
         with mic as source:
             print('Default energy threshold: {}'.format(recognizer.energy_threshold))
@@ -53,35 +66,37 @@ def transcribe_audio_input():
             print('Adjusted Energy threshold: {}'.format(recognizer.energy_threshold))
             recognizer.energy_threshold = 1000
             print('Forced energy threshold: {}'.format(recognizer.energy_threshold))
-            print('Kuuntelen')
+            print('Listening')
+            print('****************************************************************************')
             audio = recognizer.listen(source)
-            print('Lopetin kuuntelun')
+            print('Stopped listening')
             try:
-                result_google = recognizer.recognize_google(audio, language='fi-FI')
+                result_google = recognizer.recognize_google(audio, language=language_code)
             except speech_recognition.RequestError as err:
                 print('API rikki')
                 print(err)
                 break
             except speech_recognition.UnknownValueError as err:
-                print('Sori, en saanut selvää')
+                print('Sorry, I did not understand that')
                 continue
+            print('Google speech to text:')
             print(result_google)
-            if result_google.strip():
-                if 'heippa' or 'riittää' in result_google.lower():
-                    break
-                messages.append({"role": "user", "content": result_google})
-                response = create_response_text(messages)
-                messages.append({"role": "assistant", "content": response})
-                tts.say(response)
-                tts.runAndWait()
-            # time.sleep(2)
+            messages.append({"role": "user", "content": result_google})
+            print(messages)
+            response = create_response_text(messages)
+            messages.append({"role": "assistant", "content": response})
+            tts.say(response)
+            tts.runAndWait()
 
 
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser()
-    # args = parser.parse_args()
     if OPENAI_KEY:
         openai.api_key = OPENAI_KEY
     else:
         print('Need to set you openai key: export OPENAI_KEY={your key}')
-    transcribe_audio_input()
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--language", help="Expected input (and output) language", default='finnish')
+    parser.add_argument("--age", help="User age", default=4)
+    args = parser.parse_args()
+    transcribe_audio_input(language=args.language, age=args.age)
