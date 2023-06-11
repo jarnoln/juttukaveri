@@ -20,16 +20,20 @@ def transcribe_audio_input():
     # print_tts_info(tts)
     tts.setProperty('voice', 'finnish')
     tts.setProperty('rate', 120)
-    with mic as source:
-        recognizer.adjust_for_ambient_noise(source)
-        greet = 'Sano jotain'
-        print(greet)
-        tts.say(greet)
-        tts.runAndWait()
-        time.sleep(0.5)
-        while True:
+    greet = 'Sano jotain'
+    print(greet)
+    tts.say(greet)
+    tts.runAndWait()
+    while True:
+        with mic as source:
+            print('Default energy threshold: {}'.format(recognizer.energy_threshold))
+            recognizer.adjust_for_ambient_noise(source)
+            print('Adjusted Energy threshold: {}'.format(recognizer.energy_threshold))
+            recognizer.energy_threshold = 1000
+            print('Forced energy threshold: {}'.format(recognizer.energy_threshold))
             print('Kuuntelen')
             audio = recognizer.listen(source)
+            print('Lopetin kuuntelun')
             try:
                 result_google = recognizer.recognize_google(audio, language='fi-FI')
             except speech_recognition.RequestError as err:
@@ -39,10 +43,10 @@ def transcribe_audio_input():
             except speech_recognition.UnknownValueError as err:
                 print('Sori, en saanut selvää')
                 continue
-            print('Google:')
             print(result_google)
             tts.say(result_google)
             tts.runAndWait()
+            # time.sleep(2)
             if 'heippa' in result_google.lower():
                 break
 
