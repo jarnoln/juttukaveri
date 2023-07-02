@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Audio Recording Example</title>
+</head>
+<body>
+  <h1>Audio Recording Example</h1>
+
+  <button id="startButton">Start Recording</button>
+  <button id="stopButton">Stop Recording</button>
+  <p id="recordingStatus"></p>
+  <script>
+    let audioContext;
+    let mediaRecorder;
+    let chunks = [];
+
+    function startRecording() {
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(function(stream) {
+          audioContext = new AudioContext();
+          const options = {
+            mimeType: "audio/webm"
+          }
+          mediaRecorder = new MediaRecorder(stream, options);
+          document.getElementById('recordingStatus').innerHTML = 'Recording'
+          mediaRecorder.addEventListener('dataavailable', function(event) {
+            chunks.push(event.data);
+          });
+
+          mediaRecorder.addEventListener('stop', function() {
+            document.getElementById('recordingStatus').innerHTML = 'Not recording'
+            const audioBlob = new Blob(chunks, { type: 'audio/mpeg' });
+            const audioURL = URL.createObjectURL(audioBlob);
+            const audio = new Audio(audioURL);
+            audio.controls = true;
+            document.body.appendChild(audio);
+            transcribeAudio(audioBlob)
+          });
+
+          mediaRecorder.start();
+        })
+        .catch(function(error) {
+          document.getElementById('recordingStatus').innerHTML = 'Error accessing microphone:' + error
+          console.error('Error accessing microphone:', error);
+        });
+    }
+
+    function stopRecording() {
+      mediaRecorder.stop();
+      chunks = [];
+      audioContext.close();
+    }
+
+    function transcribeAudio(audioBlob) {
+      const formData = new FormData();
+      formData.append('audio', audioBlob);
+
+      const url = 'http://127.0.0.1:8000/api01/submit_audio'
+      fetch(url, {
+        method: 'POST',
+        body: formData,
+      })
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(data) {
+        const transcription = data;
+        console.log('Transcription:', transcription);
+      })
+      .catch(function(error) {
+        console.error('Error transcribing audio:', error);
+      });
+    }
+    document.getElementById('startButton').addEventListener('click', startRecording);
+    document.getElementById('stopButton').addEventListener('click', stopRecording);
+    document.getElementById('recordingStatus').innerHTML = 'Not recording'
+  </script>
+</body>
+</html>

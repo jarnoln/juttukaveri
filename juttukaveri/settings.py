@@ -10,17 +10,46 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
+import sys
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+SITE_DIR = Path(BASE_DIR).resolve().parent  # Directory above source directory
+PROJECT_NAME = Path(__file__).parent
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-nzp$_j(q2^d49^1a_p6czp3f^!3d-pcbu-!p8^e3akjq4mu-_='
+SECRET_KEY = os.environ.get("SECRET_KEY", "")
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS")
+if ALLOWED_HOSTS:
+    ALLOWED_HOSTS = ALLOWED_HOSTS.split(" ")
+
+if SECRET_KEY == "":
+    try:
+        from .site_config import ALLOWED_HOSTS
+        from .site_config import CORS_ALLOWED_ORIGINS
+        from .site_config import CSRF_COOKIE_SECURE
+        from .site_config import CSRF_TRUSTED_ORIGINS
+        from .site_config import DEBUG
+        from .site_config import OPENAI_API_KEY
+        from .site_config import SECRET_KEY
+        from .site_config import SECURE_SSL_REDIRECT
+        from .site_config import SESSION_COOKIE_SECURE
+    except ImportError:
+        print(
+            "Site configuration file does not exist or not properly configured. How to create it:"
+        )
+        print(
+            "python {}/generate_site_config.py {}/site_config.py".format(
+                PROJECT_NAME, PROJECT_NAME
+            )
+        )
+        sys.exit(1)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
