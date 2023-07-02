@@ -9,6 +9,7 @@
   <button id="startButton">Start Recording</button>
   <button id="stopButton">Stop Recording</button>
   <p id="recordingStatus"></p>
+  <p id="transcribedText"></p>
   <script>
     let audioContext;
     let mediaRecorder;
@@ -66,6 +67,7 @@
       .then(function(data) {
         const transcription = data;
         console.log('Transcription:', transcription);
+        document.getElementById('transcribedText').innerHTML = transcription.text
       })
       .catch(function(error) {
         console.error('Error transcribing audio:', error);
