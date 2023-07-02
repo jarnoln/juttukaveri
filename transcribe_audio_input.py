@@ -20,7 +20,7 @@ def print_tts_info(tts) -> None:
     print(rate)
 
 
-def create_response_text(messages: typing.List) -> str:
+def create_response_text(messages: list) -> str:
     print('Sending messages:')
     print(messages)
     response = openai.ChatCompletion.create(
