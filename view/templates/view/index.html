@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Audio Recording Example</title>
+  <title>Juttukaveri</title>
 </head>
 <body>
-  <h1>Audio Recording Example</h1>
+  <h1>Juttukaveri</h1>
 
   <button id="startButton">Start Recording</button>
   <button id="stopButton">Stop Recording</button>
+  <button id="playButton">Play response</button>
   <p id="recordingStatus"></p>
   <p id="transcribedText"></p>
   <script>
@@ -73,8 +74,20 @@
         console.error('Error transcribing audio:', error);
       });
     }
+
+    function playGreeting() {
+      const audioUrl = 'https://public-bucket-jk.s3.eu-central-1.amazonaws.com/polly_mita_kuuluu.mp3'
+      const audio = new Audio(audioUrl)
+      audio.play()
+    }
+
+    function playResponse(audioUrl) {
+      const audio = new Audio(audioUrl)
+      audio.play()
+    }
     document.getElementById('startButton').addEventListener('click', startRecording);
     document.getElementById('stopButton').addEventListener('click', stopRecording);
+    document.getElementById('playButton').addEventListener('click', playGreeting);
     document.getElementById('recordingStatus').innerHTML = 'Not recording'
   </script>
 </body>

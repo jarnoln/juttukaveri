@@ -64,9 +64,10 @@ def upload_file_to_s3(session, file_path):
     response = s3.generate_presigned_url('get_object', Params=params, ExpiresIn=3600)
     print('audio url:')
     print(response)
+    return response
 
 
 if __name__ == "__main__":
     session = Session(profile_name="default")
     file_path = text_to_speech(session, "Hei! Kuka sinä olet?")
-    upload_file_to_s3(session, file_path)
+    url = upload_file_to_s3(session, file_path)
