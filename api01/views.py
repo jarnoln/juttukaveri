@@ -3,6 +3,8 @@ from rest_framework.response import Response
 from django.conf import settings
 import openai
 
+from util.aws_api import AwsApi
+
 
 @api_view(['POST'])
 def submit_audio(request):
@@ -23,4 +25,13 @@ def handle_uploaded_audio_file(audio_file):
     opened_audio_file = open('audio.wav', 'rb')
     openai.api_key = settings.OPENAI_API_KEY
     transcript = openai.Audio.transcribe('whisper-1', file=opened_audio_file, language='fi')
-    return transcript
+    print('Transcript:')
+    print(transcript)
+    transcript_text = transcript['text']
+    aws_api = AwsApi()
+    local_file_path = aws_api.text_to_speech(transcript_text)
+    audio_url = aws_api.upload_file_to_s3(local_file_path)
+    return {
+        'transcript': transcript_text,
+        'audioUrl': audio_url
+    }

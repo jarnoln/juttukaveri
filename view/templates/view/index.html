@@ -66,9 +66,11 @@
         return response.json();
       })
       .then(function(data) {
-        const transcription = data;
+        console.log(data)
+        const transcription = data['transcript'];
         console.log('Transcription:', transcription);
-        document.getElementById('transcribedText').innerHTML = transcription.text
+        document.getElementById('transcribedText').innerHTML = transcription
+        playResponse(data['audioUrl'])
       })
       .catch(function(error) {
         console.error('Error transcribing audio:', error);

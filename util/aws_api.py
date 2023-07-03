@@ -6,10 +6,11 @@ import sys
 
 class AwsApi:
     def __init__(self):
-        print('Hihhei!')
         self.session = Session(profile_name="default")
 
     def text_to_speech(self, text, out_file_path='polly.mp3'):
+        print('text_to_speech')
+        print(text)
         polly = self.session.client("polly")
 
         try:
@@ -21,7 +22,7 @@ class AwsApi:
                 VoiceId="Suvi",
                 Engine="neural"
             )
-            print(response)
+            # print(response)
         except (BotoCoreError, ClientError) as error:
             # The service returned an error, exit gracefully
             print(error)
@@ -29,13 +30,9 @@ class AwsApi:
 
         if "AudioStream" in response:
             with closing(response["AudioStream"]) as stream:
-                try:
-                    with open(out_file_path, "wb") as out_file:
-                        out_file.write(stream.read())
-                    return out_file_path
-                except IOError as error:
-                    print(error)
-                    sys.exit(-1)
+                with open(out_file_path, "wb") as out_file:
+                    out_file.write(stream.read())
+                return out_file_path
         return None
 
     def upload_file_to_s3(self, file_path):
@@ -69,5 +66,5 @@ class AwsApi:
 
 if __name__ == "__main__":
     awsApi = AwsApi()
-    file_path = awsApi.text_to_speech("Hei! Kuka sinä olet?")
-    url = awsApi.upload_file_to_s3(file_path)
+    local_file_path = awsApi.text_to_speech("Hei! Kuka sinä olet?")
+    url = awsApi.upload_file_to_s3(local_file_path)
