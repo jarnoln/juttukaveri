@@ -28,10 +28,35 @@ def handle_uploaded_audio_file(audio_file):
     print('Transcript:')
     print(transcript)
     transcript_text = transcript['text']
+
+    age = 4
+    greet = 'Hei! Kuka sinä olet?'
+    context = 'Olet ystävällinen lastenopettaja. Keskustelet {}-vuotiaan lapsen kanssa.'.format(age)
+    messages = [
+        {"role": "system", "content": context},
+        {"role": "assistant", "content": greet},
+        {"role": "user", "content": transcript_text}
+    ]
+    response_text = create_response_text(messages)
     aws_api = AwsApi()
-    local_file_path = aws_api.text_to_speech(transcript_text)
+    # local_file_path = aws_api.text_to_speech(transcript_text)
+    local_file_path = aws_api.text_to_speech(response_text)
     audio_url = aws_api.upload_file_to_s3(local_file_path)
     return {
         'transcript': transcript_text,
-        'audioUrl': audio_url
+        'responseText': response_text,
+        'audioUrl': audio_url,
     }
+
+
+def create_response_text(messages: list) -> str:
+    print('Sending messages:')
+    print(messages)
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=messages
+    )
+    print(response)
+    response_text = response.choices[0]['message']['content']
+    print(response_text)
+    return response_text

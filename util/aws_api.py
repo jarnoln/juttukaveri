@@ -8,7 +8,7 @@ class AwsApi:
     def __init__(self):
         self.session = Session(profile_name="default")
 
-    def text_to_speech(self, text, out_file_path='polly.mp3'):
+    def text_to_speech(self, text: str, out_file_path: str = 'polly.mp3') -> str:
         print('text_to_speech')
         print(text)
         polly = self.session.client("polly")
@@ -33,9 +33,9 @@ class AwsApi:
                 with open(out_file_path, "wb") as out_file:
                     out_file.write(stream.read())
                 return out_file_path
-        return None
+        return ''
 
-    def upload_file_to_s3(self, file_path):
+    def upload_file_to_s3(self, file_path: str) -> str:
         bucket_name = 'public-bucket-jk'
         region = 'eu-central-1'
         s3 = self.session.client('s3', region_name=region)

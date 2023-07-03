@@ -8,9 +8,10 @@
 
   <button id="startButton">Start Recording</button>
   <button id="stopButton">Stop Recording</button>
-  <button id="playButton">Play response</button>
+  <button id="playButton">Play Greeting</button>
   <p id="recordingStatus"></p>
   <p id="transcribedText"></p>
+  <p id="responseText"></p>
   <script>
     let audioContext;
     let mediaRecorder;
@@ -68,8 +69,10 @@
       .then(function(data) {
         console.log(data)
         const transcription = data['transcript'];
+        const responseText = data['responseText'];
         console.log('Transcription:', transcription);
         document.getElementById('transcribedText').innerHTML = transcription
+        document.getElementById('responseText').innerHTML = responseText
         playResponse(data['audioUrl'])
       })
       .catch(function(error) {
