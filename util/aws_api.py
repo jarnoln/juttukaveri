@@ -39,7 +39,7 @@ class AwsApi:
         return None
 
     def upload_file_to_s3(self, file_path):
-        bucket_name = 'public-bicket-jk'
+        bucket_name = 'public-bucket-jk'
         region = 'eu-central-1'
         s3 = self.session.client('s3', region_name=region)
         response = s3.list_buckets()
@@ -56,11 +56,7 @@ class AwsApi:
             location = {'LocationConstraint': region}
             s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration=location)
 
-        try:
-            s3.upload_file(file_path, bucket_name, file_path)
-        except ClientError as e:
-            print(e)
-            sys.exit(-1)
+        s3.upload_file(file_path, bucket_name, file_path, ExtraArgs={'ACL': 'public-read'})
         params = {
             'Bucket': bucket_name,
             'Key': file_path
