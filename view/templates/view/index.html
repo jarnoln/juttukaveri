@@ -6,11 +6,11 @@
 <body>
   <h1>Juttukaveri</h1>
 
-  <button id="startButton">Start Recording</button>
-  <button id="stopButton">Stop Recording</button>
-  <button id="playButton">Play Greeting</button>
-  <p id="recordingStatus"></p>
-  <p id="processingStatus"></p>
+  <h2 id="statusText"></h2>
+
+  <button id="startButton">Aloita nauhoitus</button>
+  <button id="stopButton">Lopeta nauhoitus</button>
+  <button id="playButton">Tervehdys</button>
   <p id="transcribedText"></p>
   <p id="responseText"></p>
   <script>
@@ -30,7 +30,6 @@
 
     const messages = initializeContext()
     console.log(messages)
-    document.getElementById('processingStatus').innerHTML = 'Ready'
 
     function startRecording() {
       navigator.mediaDevices.getUserMedia({ audio: true })
@@ -40,14 +39,13 @@
             mimeType: "audio/webm"
           }
           mediaRecorder = new MediaRecorder(stream, options);
-          document.getElementById('recordingStatus').innerHTML = 'Recording';
+          document.getElementById('statusText').innerHTML = 'Tallennus käynnissä';
           mediaRecorder.addEventListener('dataavailable', function(event) {
             chunks.push(event.data);
           });
 
           mediaRecorder.addEventListener('stop', function() {
-            document.getElementById('recordingStatus').innerHTML = 'Not recording';
-            document.getElementById('processingStatus').innerHTML = 'Thinking...';
+            document.getElementById('statusText').innerHTML = 'Odota hetki, kun mietin.';
             const audioBlob = new Blob(chunks, { type: 'audio/mpeg' });
             // const audioURL = URL.createObjectURL(audioBlob);
             // const audio = new Audio(audioURL);
@@ -59,7 +57,7 @@
           mediaRecorder.start();
         })
         .catch(function(error) {
-          document.getElementById('recordingStatus').innerHTML = 'Error accessing microphone:' + error
+          document.getElementById('statusText').innerHTML = 'Error accessing microphone:' + error
           console.error('Error accessing microphone:', error);
         });
     }
@@ -88,7 +86,7 @@
         const transcription = data['transcript'];
         const responseText = data['responseText'];
         console.log('Transcription:', transcription);
-        document.getElementById('processingStatus').innerHTML = 'Ready';
+        document.getElementById('statusText').innerHTML = 'Valmis';
         document.getElementById('transcribedText').innerHTML = transcription;
         document.getElementById('responseText').innerHTML = responseText;
         messages.push({ 'role': 'user', 'content': transcription })
@@ -114,7 +112,7 @@
     document.getElementById('startButton').addEventListener('click', startRecording);
     document.getElementById('stopButton').addEventListener('click', stopRecording);
     document.getElementById('playButton').addEventListener('click', playGreeting);
-    document.getElementById('recordingStatus').innerHTML = 'Not recording';
+    document.getElementById('statusText').innerHTML = 'Valmis'
   </script>
 </body>
 </html>
