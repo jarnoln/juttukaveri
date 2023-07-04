@@ -1,4 +1,5 @@
 site_config.py
+ansible/inventory
 .idea
 __pycache__
 db.sqlite3

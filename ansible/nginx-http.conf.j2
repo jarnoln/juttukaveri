@@ -1,0 +1,22 @@
+# Listen to HTTP
+server {
+    listen 80;
+    listen [::]:80; #IPv6
+    server_name {{ site_name }} www.{{ site_name }} staging.{{ site_name }};
+
+    location /static {
+        alias /home/{{ ansible_user }}/sites/{{ site_name }}/static;
+        autoindex on;
+    }
+
+    # This is used by certbot to verify site ownership
+    location /.well-known {
+        alias /home/{{ ansible_user }}/sites/{{site_name }}/.well-known;
+        autoindex on;
+    }
+
+    location / {
+        proxy_set_header Host {{ site_name }};
+        proxy_pass http://unix:/tmp/{{ site_name }}.socket;
+    }
+}
