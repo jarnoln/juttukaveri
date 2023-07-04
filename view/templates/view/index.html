@@ -10,12 +10,15 @@
   <button id="stopButton">Stop Recording</button>
   <button id="playButton">Play Greeting</button>
   <p id="recordingStatus"></p>
+  <p id="processingStatus"></p>
   <p id="transcribedText"></p>
   <p id="responseText"></p>
   <script>
     let audioContext;
     let mediaRecorder;
     let chunks = [];
+
+    document.getElementById('processingStatus').innerHTML = 'Ready'
 
     function startRecording() {
       navigator.mediaDevices.getUserMedia({ audio: true })
@@ -32,12 +35,13 @@
 
           mediaRecorder.addEventListener('stop', function() {
             document.getElementById('recordingStatus').innerHTML = 'Not recording'
+            document.getElementById('processingStatus').innerHTML = 'Thinking...'
             const audioBlob = new Blob(chunks, { type: 'audio/mpeg' });
-            const audioURL = URL.createObjectURL(audioBlob);
-            const audio = new Audio(audioURL);
-            audio.controls = true;
-            document.body.appendChild(audio);
-            transcribeAudio(audioBlob)
+            // const audioURL = URL.createObjectURL(audioBlob);
+            // const audio = new Audio(audioURL);
+            // audio.controls = true;
+            // document.body.appendChild(audio);
+            submitRecording(audioBlob)
           });
 
           mediaRecorder.start();
@@ -54,7 +58,7 @@
       audioContext.close();
     }
 
-    function transcribeAudio(audioBlob) {
+    function submitRecording(audioBlob) {
       const formData = new FormData();
       formData.append('audio', audioBlob);
 
@@ -71,12 +75,13 @@
         const transcription = data['transcript'];
         const responseText = data['responseText'];
         console.log('Transcription:', transcription);
+        document.getElementById('processingStatus').innerHTML = 'Ready'
         document.getElementById('transcribedText').innerHTML = transcription
         document.getElementById('responseText').innerHTML = responseText
         playResponse(data['audioUrl'])
       })
       .catch(function(error) {
-        console.error('Error transcribing audio:', error);
+        console.error('Error:', error);
       });
     }
 
