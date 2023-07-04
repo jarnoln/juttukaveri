@@ -41,11 +41,10 @@ class AwsApi:
         s3 = self.session.client('s3', region_name=region)
         response = s3.list_buckets()
         buckets = response['Buckets']
-        print('Buckets:')
         found = False
         for bucket in buckets:
             name = bucket['Name']
-            print(name)
+            # print(name)
             if name == bucket_name:
                 found = True
                 break
@@ -59,8 +58,6 @@ class AwsApi:
             'Key': file_path
         }
         response = s3.generate_presigned_url('get_object', Params=params, ExpiresIn=3600)
-        print('audio url:')
-        print(response)
         return response
 
 
