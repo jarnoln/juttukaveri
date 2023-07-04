@@ -1,0 +1,61 @@
+---
+- name: prepare server
+  hosts: all
+  become: true
+  vars:
+      host: "{{ inventory_hostname }}"
+
+  tasks:
+    - name: check connection
+      ping:
+
+    - name: install required packages
+      apt: pkg={{item}} state=present
+      with_items:
+        - nginx
+        - git
+        - build-essential
+        - python3-dev
+        - python3-virtualenv
+        - certbot
+        - python3-certbot-nginx
+
+    - name: start nginx
+      service: name=nginx state=started
+
+    - name: write gunicorn systemd service script
+      template:
+          src=./systemd.gunicorn.service.j2
+          dest=/etc/systemd/system/atange.gunicorn.service
+      notify:
+          - restart gunicorn
+
+    - name: add nginx config to sites-available
+      template:
+          src=./nginx-http.conf.j2
+          dest=/etc/nginx/sites-available/{{ site_name }}
+      notify:
+          - restart nginx
+
+    - name: add symlink in nginx sites-enabled
+      file:
+          src=/etc/nginx/sites-available/{{ site_name }}
+          dest=/etc/nginx/sites-enabled/{{ site_name }}
+          state=link
+      notify:
+          - restart nginx
+
+    - name: run certbot
+      ansible.builtin.shell:
+          cmd: sudo certbot --nginx --domains {{ site_name }} -n
+
+  handlers:
+    - name: restart gunicorn
+      systemd:
+          name=atange.gunicorn
+          daemon_reload=yes
+          enabled=yes
+          state=restarted
+
+    - name: restart nginx
+      service:  name=nginx state=restarted

@@ -1,0 +1,13 @@
+[Unit]
+Description=Gunicorn server for {{ site_name }}
+After=network.target
+
+[Service]
+User={{ ansible_user }}
+Group={{ ansible_user }}
+WorkingDirectory=/home/{{ ansible_user }}/sites/{{ site_name }}/source
+ExecStart=/home/{{ ansible_user }}/sites/{{ site_name }}/virtualenv/bin/gunicorn --bind unix:/tmp/{{ site_name }}.socket atange.wsgi:application --workers 3
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
