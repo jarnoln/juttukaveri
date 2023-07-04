@@ -18,6 +18,18 @@
     let mediaRecorder;
     let chunks = [];
 
+    function initializeContext() {
+      const age = 4
+      const greet = 'Hei! Kuka sinä olet?'
+      const context = 'Olet ystävällinen lastenopettaja. Keskustelet ' + age + '-vuotiaan lapsen kanssa.'
+      return [
+        {'role': 'system', 'content': context},
+        {'role': 'assistant', 'content': greet},
+      ];
+    }
+
+    const messages = initializeContext()
+    console.log(messages)
     document.getElementById('processingStatus').innerHTML = 'Ready'
 
     function startRecording() {
@@ -28,20 +40,20 @@
             mimeType: "audio/webm"
           }
           mediaRecorder = new MediaRecorder(stream, options);
-          document.getElementById('recordingStatus').innerHTML = 'Recording'
+          document.getElementById('recordingStatus').innerHTML = 'Recording';
           mediaRecorder.addEventListener('dataavailable', function(event) {
             chunks.push(event.data);
           });
 
           mediaRecorder.addEventListener('stop', function() {
-            document.getElementById('recordingStatus').innerHTML = 'Not recording'
-            document.getElementById('processingStatus').innerHTML = 'Thinking...'
+            document.getElementById('recordingStatus').innerHTML = 'Not recording';
+            document.getElementById('processingStatus').innerHTML = 'Thinking...';
             const audioBlob = new Blob(chunks, { type: 'audio/mpeg' });
             // const audioURL = URL.createObjectURL(audioBlob);
             // const audio = new Audio(audioURL);
             // audio.controls = true;
             // document.body.appendChild(audio);
-            submitRecording(audioBlob)
+            submitRecording(audioBlob);
           });
 
           mediaRecorder.start();
@@ -61,6 +73,7 @@
     function submitRecording(audioBlob) {
       const formData = new FormData();
       formData.append('audio', audioBlob);
+      formData.append('messages', JSON.stringify(messages));
 
       const url = 'http://127.0.0.1:8000/api01/submit_audio'
       fetch(url, {
@@ -75,10 +88,13 @@
         const transcription = data['transcript'];
         const responseText = data['responseText'];
         console.log('Transcription:', transcription);
-        document.getElementById('processingStatus').innerHTML = 'Ready'
-        document.getElementById('transcribedText').innerHTML = transcription
-        document.getElementById('responseText').innerHTML = responseText
-        playResponse(data['audioUrl'])
+        document.getElementById('processingStatus').innerHTML = 'Ready';
+        document.getElementById('transcribedText').innerHTML = transcription;
+        document.getElementById('responseText').innerHTML = responseText;
+        messages.push({ 'role': 'user', 'content': transcription })
+        messages.push({ 'role': 'assistant', 'content': responseText })
+        playResponse(data['audioUrl']);
+        console.log(messages)
       })
       .catch(function(error) {
         console.error('Error:', error);
@@ -86,19 +102,19 @@
     }
 
     function playGreeting() {
-      const audioUrl = 'https://public-bucket-jk.s3.eu-central-1.amazonaws.com/polly_mita_kuuluu.mp3'
-      const audio = new Audio(audioUrl)
-      audio.play()
+      const audioUrl = 'https://public-bucket-jk.s3.eu-central-1.amazonaws.com/polly_mita_kuuluu.mp3';
+      const audio = new Audio(audioUrl);
+      audio.play();
     }
 
     function playResponse(audioUrl) {
-      const audio = new Audio(audioUrl)
-      audio.play()
+      const audio = new Audio(audioUrl);
+      audio.play();
     }
     document.getElementById('startButton').addEventListener('click', startRecording);
     document.getElementById('stopButton').addEventListener('click', stopRecording);
     document.getElementById('playButton').addEventListener('click', playGreeting);
-    document.getElementById('recordingStatus').innerHTML = 'Not recording'
+    document.getElementById('recordingStatus').innerHTML = 'Not recording';
   </script>
 </body>
 </html>
