@@ -9,7 +9,7 @@ polly = session.client("polly")
 try:
     # Request speech synthesis
     response = polly.synthesize_speech(
-        Text="Hei! Kuka sinä olet?",
+        Text="Odota hetki, kun mietin.",
         LanguageCode="fi-FI",
         OutputFormat="mp3",
         VoiceId="Suvi",
@@ -23,7 +23,7 @@ except (BotoCoreError, ClientError) as error:
 
 if "AudioStream" in response:
     with closing(response["AudioStream"]) as stream:
-        out_file_name = "polly.mp3"
+        out_file_name = "odota_hetki_kun_mietin.mp3"
         try:
             with open(out_file_name, "wb") as out_file:
                 out_file.write(stream.read())

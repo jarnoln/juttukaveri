@@ -2,21 +2,32 @@
 <html>
 <head>
   <title>Juttukaveri</title>
+  <style>
+    body {
+      text-align: center;
+    }
+    .red-bg {
+      background-color: #ff2222;
+    }
+  </style>
 </head>
 <body>
-  <h1>Juttukaveri</h1>
+  <div id="content">
+    <h1>Juttukaveri</h1>
 
-  <h2 id="statusText"></h2>
+    <h2 id="statusText" class="white-bg"></h2>
 
-  <button id="startButton">Aloita nauhoitus</button>
-  <button id="stopButton">Lopeta nauhoitus</button>
-  <button id="playButton">Tervehdys</button>
-  <p id="transcribedText"></p>
-  <p id="responseText"></p>
+    <button id="startButton">Aloita nauhoitus</button>
+    <button id="stopButton">Lopeta nauhoitus</button>
+    <button id="playButton">Tervehdys</button>
+    <p id="transcribedText"></p>
+    <p id="responseText"></p>
+  </div>
   <script>
     let audioContext;
     let mediaRecorder;
     let chunks = [];
+    let status = 'ready';
 
     function initializeContext() {
       const age = 4
@@ -39,13 +50,17 @@
             mimeType: "audio/webm"
           }
           mediaRecorder = new MediaRecorder(stream, options);
+          status = 'recording';
           document.getElementById('statusText').innerHTML = 'Tallennus käynnissä';
+          document.getElementById('statusText').classList.add('red-bg')
           mediaRecorder.addEventListener('dataavailable', function(event) {
             chunks.push(event.data);
           });
 
           mediaRecorder.addEventListener('stop', function() {
+            status = 'processing';
             document.getElementById('statusText').innerHTML = 'Odota hetki, kun mietin.';
+            document.getElementById('statusText').classList.remove('red-bg')
             const audioBlob = new Blob(chunks, { type: 'audio/mpeg' });
             // const audioURL = URL.createObjectURL(audioBlob);
             // const audio = new Audio(audioURL);
@@ -64,11 +79,13 @@
 
     function stopRecording() {
       mediaRecorder.stop();
+      status = 'stopped';
       chunks = [];
       audioContext.close();
     }
 
     function submitRecording(audioBlob) {
+      playWaitASecond();
       const formData = new FormData();
       formData.append('audio', audioBlob);
       formData.append('messages', JSON.stringify(messages));
@@ -92,15 +109,25 @@
         messages.push({ 'role': 'user', 'content': transcription })
         messages.push({ 'role': 'assistant', 'content': responseText })
         playResponse(data['audioUrl']);
-        console.log(messages)
+        console.log(messages);
+        status = 'ready';
+        document.getElementById('statusText').innerHTML = 'Valmis';
       })
       .catch(function(error) {
         console.error('Error:', error);
+        status = 'error';
       });
     }
 
     function playGreeting() {
-      const audioUrl = 'https://public-bucket-jk.s3.eu-central-1.amazonaws.com/polly_mita_kuuluu.mp3';
+      // const audioUrl = 'https://public-bucket-jk.s3.eu-central-1.amazonaws.com/polly_mita_kuuluu.mp3';
+      const audioUrl = 'https://public-bucket-jk.s3.eu-central-1.amazonaws.com/hei_kuka_sina_olet.mp3';
+      const audio = new Audio(audioUrl);
+      audio.play();
+    }
+
+    function playWaitASecond() {
+      const audioUrl = 'https://public-bucket-jk.s3.eu-central-1.amazonaws.com/odota_hetki_kun_mietin.mp3';
       const audio = new Audio(audioUrl);
       audio.play();
     }
@@ -109,10 +136,36 @@
       const audio = new Audio(audioUrl);
       audio.play();
     }
+
+    function keyDownHandler(event) {
+      console.log('Pressed key', event.code)
+    }
+
+    function keyDownHandler(event) {
+      console.log('Pressed key', event.code)
+      if (event.code === 'Space') {
+        if (status === 'ready') {
+          startRecording()
+        }
+      }
+    }
+
+    function keyUpHandler(event) {
+      console.log('Released key', event.code)
+      if (event.code === 'Space') {
+        if (status === 'recording') {
+          stopRecording()
+        }
+      }
+    }
+
     document.getElementById('startButton').addEventListener('click', startRecording);
     document.getElementById('stopButton').addEventListener('click', stopRecording);
     document.getElementById('playButton').addEventListener('click', playGreeting);
-    document.getElementById('statusText').innerHTML = 'Valmis'
+    document.addEventListener("DOMContentLoaded", playGreeting);
+    document.addEventListener("keydown", keyDownHandler);
+    document.addEventListener("keyup", keyUpHandler);
+    document.getElementById('statusText').innerHTML = 'Valmis';
   </script>
 </body>
 </html>
