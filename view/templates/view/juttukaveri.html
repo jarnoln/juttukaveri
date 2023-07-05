@@ -16,7 +16,7 @@
       text-transform: uppercase;
     }
 
-    h2 {
+    h2, label {
       text-transform: uppercase;
     }
 
@@ -26,10 +26,19 @@
       text-decoration: none;
       text-transform: uppercase;
       font-weight: bold;
+      width: 90%;
       color: white;
-      padding: 6rem 4rem;
+      padding: 6rem 2rem;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
       margin: 0 0.5rem 0 0;
+    }
+
+    .response {
+      background-color: #bbbbbb;
+    }
+
+    .transcribed {
+      background-color: #eeeeee;
     }
 
     #startButton {
@@ -58,8 +67,7 @@
       <input type="checkbox" id="echoCheckbox" name="echo">
       <label for="echoCheckbox">Vain kaiutus</label>
     </p>
-    <p id="transcribedText"></p>
-    <p id="responseText"></p>
+    <div id="chatBox"></div>
   </div>
   <script>
     let audioContext;
@@ -72,11 +80,19 @@
     const stopButton = document.getElementById('stopButton');
     const playButton = document.getElementById('playButton');
     const echoCheckbox = document.getElementById('echoCheckbox');
+    const statusText = document.getElementById('statusText');
+    const chatBox = document.getElementById('chatBox');
 
     function initializeContext() {
       const age = 4
       const greet = 'Hei! Kuka sinä olet?'
       const context = 'Olet ystävällinen lastenopettaja. Keskustelet ' + age + '-vuotiaan lapsen kanssa.'
+
+      const responseContainer = document.createElement("p");
+      responseContainer.classList.add('response')
+      responseContainer.innerHTML = greet;
+      chatBox.appendChild(responseContainer);
+
       return [
         {'role': 'system', 'content': context},
         {'role': 'assistant', 'content': greet},
@@ -97,8 +113,8 @@
           status = 'recording';
           startButton.setAttribute('hidden', '');
           stopButton.removeAttribute('hidden');
-          document.getElementById('statusText').innerHTML = 'Tallennus käynnissä';
-          document.getElementById('statusText').classList.add('red-bg')
+          statusText.innerHTML = 'Tallennus käynnissä';
+          statusText.classList.add('red-bg')
           mediaRecorder.addEventListener('dataavailable', function(event) {
             chunks.push(event.data);
           });
@@ -107,8 +123,8 @@
             status = 'processing';
             stopButton.setAttribute('disabled', '');
 
-            document.getElementById('statusText').innerHTML = 'Odota hetki, kun mietin.';
-            document.getElementById('statusText').classList.remove('red-bg')
+            statusText.innerHTML = 'Odota hetki, kun mietin.';
+            statusText.classList.remove('red-bg');
             const audioBlob = new Blob(chunks, { type: 'audio/mpeg' });
             // const audioURL = URL.createObjectURL(audioBlob);
             // const audio = new Audio(audioURL);
@@ -120,7 +136,7 @@
           mediaRecorder.start();
         })
         .catch(function(error) {
-          document.getElementById('statusText').innerHTML = 'Error accessing microphone:' + error
+          statusText.innerHTML = 'Error accessing microphone:' + error
           console.error('Error accessing microphone:', error);
         });
     }
@@ -156,8 +172,15 @@
         stopButton.removeAttribute('disabled');
         stopButton.setAttribute('hidden', '');
 
-        document.getElementById('transcribedText').innerHTML = transcription;
-        document.getElementById('responseText').innerHTML = responseText;
+        const transcribedContainer = document.createElement("p");
+        transcribedContainer.classList.add('transcribed')
+        transcribedContainer.innerHTML = transcription;
+        const responseContainer = document.createElement("p");
+        responseContainer.classList.add('response')
+        responseContainer.innerHTML = responseText;
+        chatBox.appendChild(transcribedContainer);
+        chatBox.appendChild(responseContainer);
+
         messages.push({ 'role': 'user', 'content': transcription })
         messages.push({ 'role': 'assistant', 'content': responseText })
         playResponse(data['audioUrl']);
