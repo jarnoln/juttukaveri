@@ -1,6 +1,7 @@
 from boto3 import client, Session
 from botocore.exceptions import BotoCoreError, ClientError
 from contextlib import closing
+import logging
 import sys
 
 
@@ -9,8 +10,9 @@ class AwsApi:
         self.session = Session(profile_name="default")
 
     def text_to_speech(self, text: str, out_file_path: str = 'polly.mp3') -> str:
-        print('text_to_speech')
-        print(text)
+        logger = logging.getLogger(__name__)
+        logger.info('text_to_speech')
+        logger.info(text)
         polly = self.session.client("polly")
 
         try:
@@ -22,10 +24,9 @@ class AwsApi:
                 VoiceId="Suvi",
                 Engine="neural"
             )
-            # print(response)
         except (BotoCoreError, ClientError) as error:
             # The service returned an error, exit gracefully
-            print(error)
+            logger.error(error)
             sys.exit(-1)
 
         if "AudioStream" in response:
@@ -44,7 +45,6 @@ class AwsApi:
         found = False
         for bucket in buckets:
             name = bucket['Name']
-            # print(name)
             if name == bucket_name:
                 found = True
                 break
