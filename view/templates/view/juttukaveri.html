@@ -5,9 +5,41 @@
   <style>
     body {
       text-align: center;
+      font-family: sans-serif;
     }
     .red-bg {
       background-color: #ff2222;
+    }
+
+    h1 {
+      font-size: xxx-large;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      text-transform: uppercase;
+    }
+
+    button {
+      font: inherit;
+      font-size: xx-large;
+      text-decoration: none;
+      text-transform: uppercase;
+      font-weight: bold;
+      color: white;
+      padding: 6rem 4rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
+      margin: 0 0.5rem 0 0;
+    }
+
+    #startButton {
+      background-color: #00aa00;
+      border: 2px solid #00aa00;
+    }
+
+    #stopButton {
+      background-color: #cc0000;
+      border: 2px solid #cc0000;
     }
   </style>
 </head>
@@ -17,11 +49,15 @@
 
     <h2 id="statusText" class="white-bg"></h2>
 
-    <button id="startButton">Aloita nauhoitus</button>
-    <button id="stopButton">Lopeta nauhoitus</button>
-    <button id="playButton">Tervehdys</button>
-    <input type="checkbox" id="echoCheckbox" name="echo">
-    <label for="echoCheckbox">Vain kaiutus</label>
+    <p>
+      <button id="startButton">Aloita nauhoitus</button>
+      <button id="stopButton" hidden>Lopeta nauhoitus</button>
+      <button id="playButton" hidden>Tervehdys</button>
+    </p>
+    <p>
+      <input type="checkbox" id="echoCheckbox" name="echo">
+      <label for="echoCheckbox">Vain kaiutus</label>
+    </p>
     <p id="transcribedText"></p>
     <p id="responseText"></p>
   </div>
@@ -31,6 +67,11 @@
     let chunks = [];
     let status = 'ready';
     let echo = '';
+
+    const startButton = document.getElementById('startButton');
+    const stopButton = document.getElementById('stopButton');
+    const playButton = document.getElementById('playButton');
+    const echoCheckbox = document.getElementById('echoCheckbox');
 
     function initializeContext() {
       const age = 4
@@ -54,6 +95,8 @@
           }
           mediaRecorder = new MediaRecorder(stream, options);
           status = 'recording';
+          startButton.setAttribute('hidden', '');
+          stopButton.removeAttribute('hidden');
           document.getElementById('statusText').innerHTML = 'Tallennus käynnissä';
           document.getElementById('statusText').classList.add('red-bg')
           mediaRecorder.addEventListener('dataavailable', function(event) {
@@ -62,6 +105,8 @@
 
           mediaRecorder.addEventListener('stop', function() {
             status = 'processing';
+            stopButton.setAttribute('disabled', '');
+
             document.getElementById('statusText').innerHTML = 'Odota hetki, kun mietin.';
             document.getElementById('statusText').classList.remove('red-bg')
             const audioBlob = new Blob(chunks, { type: 'audio/mpeg' });
@@ -107,6 +152,10 @@
         const responseText = data['responseText'];
         console.log('Transcription:', transcription);
         document.getElementById('statusText').innerHTML = 'Valmis';
+        startButton.removeAttribute('hidden');
+        stopButton.removeAttribute('disabled');
+        stopButton.setAttribute('hidden', '');
+
         document.getElementById('transcribedText').innerHTML = transcription;
         document.getElementById('responseText').innerHTML = responseText;
         messages.push({ 'role': 'user', 'content': transcription })
@@ -157,10 +206,9 @@
       }
     }
 
-    document.getElementById('startButton').addEventListener('click', startRecording);
-    document.getElementById('stopButton').addEventListener('click', stopRecording);
-    document.getElementById('playButton').addEventListener('click', playGreeting);
-    const echoCheckbox = document.getElementById('echoCheckbox')
+    startButton.addEventListener('click', startRecording);
+    stopButton.addEventListener('click', stopRecording);
+    playButton.addEventListener('click', playGreeting);
     echoCheckbox.addEventListener('change', () => {
       if (echoCheckbox.checked) {
         echo = 'Yes';
