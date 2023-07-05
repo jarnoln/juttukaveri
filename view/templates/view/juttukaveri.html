@@ -20,6 +20,8 @@
     <button id="startButton">Aloita nauhoitus</button>
     <button id="stopButton">Lopeta nauhoitus</button>
     <button id="playButton">Tervehdys</button>
+    <input type="checkbox" id="echoCheckbox" name="echo">
+    <label for="echoCheckbox">Vain kaiutus</label>
     <p id="transcribedText"></p>
     <p id="responseText"></p>
   </div>
@@ -28,6 +30,7 @@
     let mediaRecorder;
     let chunks = [];
     let status = 'ready';
+    let echo = '';
 
     function initializeContext() {
       const age = 4
@@ -89,7 +92,7 @@
       const formData = new FormData();
       formData.append('audio', audioBlob);
       formData.append('messages', JSON.stringify(messages));
-
+      formData.append('echo', echo);
       const url = '/api01/submit_audio'
       fetch(url, {
         method: 'POST',
@@ -157,6 +160,14 @@
     document.getElementById('startButton').addEventListener('click', startRecording);
     document.getElementById('stopButton').addEventListener('click', stopRecording);
     document.getElementById('playButton').addEventListener('click', playGreeting);
+    const echoCheckbox = document.getElementById('echoCheckbox')
+    echoCheckbox.addEventListener('change', () => {
+      if (echoCheckbox.checked) {
+        echo = 'Yes';
+      } else {
+        echo = '';
+      }
+    });
     document.addEventListener("DOMContentLoaded", playGreeting);
     document.addEventListener("keydown", keyDownHandler);
     document.addEventListener("keyup", keyUpHandler);

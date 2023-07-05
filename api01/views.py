@@ -19,15 +19,20 @@ def submit_audio(request):
     logger.info('request.POST=%s' % request.POST)
     audio_file = request.FILES['audio']
     messages_string = request.POST['messages']
+    echo_str = request.POST['echo']
+    if echo_str:
+        echo = True
+    else:
+        echo = False
     messages = json.loads(messages_string)
     logger.info('messages: {}'.format(str(messages)))
     openai.api_key = settings.OPENAI_API_KEY
     # transcript = openai.Audio.transcribe('whisper-1', file=audio_file, language='fi')
-    transcript = handle_uploaded_audio_file(audio_file, messages)
+    transcript = handle_uploaded_audio_file(audio_file, messages, echo)
     return Response(transcript)
 
 
-def handle_uploaded_audio_file(audio_file, messages: list) -> dict:
+def handle_uploaded_audio_file(audio_file, messages: list, echo: bool = False) -> dict:
     """ Save incoming audio to file, send it to OpenAI Whisper to transcribe to text"""
     logger.info('handle_uploaded_audio_file')
     # Save to file
@@ -43,9 +48,13 @@ def handle_uploaded_audio_file(audio_file, messages: list) -> dict:
     logger.info(transcript)
     transcript_text = transcript['text']
 
-    # Add transcribed text to context messages and send it to OpenAI ChatCompletion
-    messages.append({'role': 'user', 'content': transcript_text})
-    response_text = create_response_text(messages)
+    if echo:
+        # Just repeat what user said without calling Chat
+        response_text = transcript_text
+    else:
+        # Add transcribed text to context messages and send it to OpenAI ChatCompletion
+        messages.append({'role': 'user', 'content': transcript_text})
+        response_text = create_response_text(messages)
 
     aws_api = AwsApi()
     # local_file_path = aws_api.text_to_speech(transcript_text)
