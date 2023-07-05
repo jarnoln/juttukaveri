@@ -1,7 +1,11 @@
 site_config.py
 ansible/inventory
+audio
 .idea
 __pycache__
 db.sqlite3
 *.pyc
+*.log
+*.wav
+*.mp3
 
