@@ -92,9 +92,13 @@
     const chatBox = document.getElementById('chatBox');
 
     function initializeContext() {
-      const age = 4
+      const age = 3
       const greet = 'Hei! Kuka sinä olet?'
-      const context = 'Olet ystävällinen lastenopettaja. Keskustelet ' + age + '-vuotiaan lapsen kanssa.'
+      const context = `
+        Olet ystävällinen lastenopettaja. Keskustelet ${age}-vuotiaan lapsen kanssa.
+        Pidä vastaukset lyhyinä ja yksinkertaisina, lapsella on lyhyt keskittymiskyky eikä
+        jaksa kuunnella kovin pitkiä vastauksia.
+        Vältä vaikeita sanoja.`
 
       const responseContainer = document.createElement("p");
       responseContainer.classList.add('response')
@@ -186,8 +190,8 @@
         const responseContainer = document.createElement("p");
         responseContainer.classList.add('response')
         responseContainer.innerHTML = responseText;
-        chatBox.appendChild(transcribedContainer);
-        chatBox.appendChild(responseContainer);
+        chatBox.prepend(transcribedContainer);
+        chatBox.prepend(responseContainer);
 
         messages.push({ 'role': 'user', 'content': transcription })
         messages.push({ 'role': 'assistant', 'content': responseText })
