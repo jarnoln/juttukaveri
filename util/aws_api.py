@@ -5,23 +5,31 @@ import logging
 import sys
 
 
+def get_voice_for_langauge(language_code: str) -> str:
+    # See https: // docs.aws.amazon.com / polly / latest / dg / voicelist.html
+    if language_code == 'fi-FI':
+        return 'Suvi'
+    elif language_code == 'cmn-CN':  # Chinese (Mandarin)
+        return 'Zhiyu'
+    return 'Kimberly'  # One of female voices for 'en-US'
+
 class AwsApi:
     def __init__(self):
         self.session = Session(profile_name="default")
 
-    def text_to_speech(self, text: str, out_file_path: str = 'polly.mp3') -> str:
+    def text_to_speech(self, text: str, out_file_path: str = 'polly.mp3', language_code: str = 'fi-FI') -> str:
         logger = logging.getLogger(__name__)
         logger.info('text_to_speech')
         logger.info(text)
         polly = self.session.client("polly")
-
+        voice_id = get_voice_for_langauge(language_code)
         try:
             # Request speech synthesis
             response = polly.synthesize_speech(
                 Text=text,
-                LanguageCode="fi-FI",
+                LanguageCode=language_code,
                 OutputFormat="mp3",
-                VoiceId="Suvi",
+                VoiceId=voice_id,
                 Engine="neural"
             )
         except (BotoCoreError, ClientError) as error:

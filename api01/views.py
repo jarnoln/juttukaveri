@@ -20,6 +20,7 @@ def submit_audio(request):
     audio_file = request.FILES['audio']
     messages_string = request.POST['messages']
     echo_str = request.POST['echo']
+    language_code = request.POST['language']
     if echo_str:
         echo = True
     else:
@@ -28,11 +29,11 @@ def submit_audio(request):
     logger.info('messages: {}'.format(str(messages)))
     openai.api_key = settings.OPENAI_API_KEY
     # transcript = openai.Audio.transcribe('whisper-1', file=audio_file, language='fi')
-    transcript = handle_uploaded_audio_file(audio_file, messages, echo)
+    transcript = handle_uploaded_audio_file(audio_file, messages, echo, language_code)
     return Response(transcript)
 
 
-def handle_uploaded_audio_file(audio_file, messages: list, echo: bool = False) -> dict:
+def handle_uploaded_audio_file(audio_file, messages: list, echo: bool = False, language_code: str = 'fi-FI') -> dict:
     """ Save incoming audio to file, send it to OpenAI Whisper to transcribe to text"""
     logger.info('handle_uploaded_audio_file')
     # Save to file
@@ -43,7 +44,11 @@ def handle_uploaded_audio_file(audio_file, messages: list, echo: bool = False) -
     # Upload file to OpenAI Whisper ro transcribe it to text
     opened_audio_file = open('audio.wav', 'rb')
     openai.api_key = settings.OPENAI_API_KEY
-    transcript = openai.Audio.transcribe('whisper-1', file=opened_audio_file, language='fi')
+    # Whisper uses two-letter ISO-639-1 language codes while AWS Polly uses longer language codes with hyphen
+    language = language_code.split('-')[0]
+    if language == 'cmn':
+        language = 'zh'
+    transcript = openai.Audio.transcribe('whisper-1', file=opened_audio_file, language=language)
     logger.info('Transcript:')
     logger.info(transcript)
     transcript_text = transcript['text']
@@ -59,7 +64,8 @@ def handle_uploaded_audio_file(audio_file, messages: list, echo: bool = False) -
     aws_api = AwsApi()
     # local_file_path = aws_api.text_to_speech(transcript_text)
     # Convert received response to voice audio using Amazon Polly
-    local_file_path = aws_api.text_to_speech(response_text)
+    file_name = 'response.mp3'
+    local_file_path = aws_api.text_to_speech(response_text, file_name, language_code)
 
     # Save generated audio file to S3 and send URL to frontend
     audio_url = aws_api.upload_file_to_s3(local_file_path)

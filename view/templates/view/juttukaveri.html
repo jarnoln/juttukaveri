@@ -40,7 +40,7 @@
     }
 
     button:disabled {
-      color: gray;
+      color: #cccccc;
       box-shadow: 0 0px 0px rgba(0, 0, 0, 0);
     }
     .response {
@@ -93,6 +93,12 @@
               disabled>
         Poista alustus lapselle
       </button>
+      <label for="selectLanguageMenu">Valitse kieli:</label>
+      <select name="language" id="selectLanguageMenu">
+        <option value="fi-FI">Suomi</option>
+        <option value="en-US">English</option>
+        <option value="cmn-CN">Mandarin</option>
+      </select>
     </p>
     <div id="chatBox"></div>
   </div>
@@ -103,6 +109,7 @@
     let status = 'ready';
     let echo = '';
     let messages = [];
+    let language = 'fi-FI';
 
     const startButton = document.getElementById('startButton');
     const stopButton = document.getElementById('stopButton');
@@ -110,23 +117,29 @@
     const beginChatButton = document.getElementById('beginChatButton');
     const clearContextButton = document.getElementById('clearContextButton');
     const echoCheckbox = document.getElementById('echoCheckbox');
+    const selectLanguageMenu = document.getElementById('selectLanguageMenu');
     const statusText = document.getElementById('statusText');
     const chatBox = document.getElementById('chatBox');
 
-    function initializeContext() {
+    function initializeContext(language) {
       const age = 3
-      const greet = 'Hei! Kuka sinä olet?'
-      const context = `
-        Olet ystävällinen lastenopettaja. Keskustelet ${age}-vuotiaan lapsen kanssa.
-        Pidä vastaukset lyhyinä ja yksinkertaisina, lapsella on lyhyt keskittymiskyky eikä
-        jaksa kuunnella kovin pitkiä vastauksia.
-        Vältä vaikeita sanoja.`
-
+      let greet = ''
+      let context = ''
+      if (language === 'en-US') {
+        greet = 'Hello! Who are you?'
+        context = `You are a friendly kindergarten teacher. You are chatting with ${age} year old child.`
+      } else if (language === 'fi-FI') {
+        greet = 'Hei! Kuka sinä olet?'
+        context = `Olet ystävällinen lastenopettaja. Keskustelet ${age}-vuotiaan lapsen kanssa.
+          Pidä vastaukset lyhyinä ja yksinkertaisina, lapsella on lyhyt keskittymiskyky eikä
+          jaksa kuunnella kovin pitkiä vastauksia.
+          Vältä vaikeita sanoja.`
+      }
       const responseContainer = document.createElement("p");
       responseContainer.classList.add('response')
       responseContainer.innerHTML = greet;
       chatBox.appendChild(responseContainer);
-
+      console.log('Initialized context:', context)
       return [
         {'role': 'system', 'content': context},
         {'role': 'assistant', 'content': greet},
@@ -144,7 +157,7 @@
       pysäytysnappia lopettaaksesi nauhoituksen. Vaihtoehtoisesti voit aloittaa nauhoituksen painamalla välilyönnin
       pohjaan ja päästää sen ylös, kun olet valmis.  Sen jälkeen tallenne lähetetään ChatGPT:lle ja jonkin ajan kuluttua
       pitäisi kuulua vastaus.`
-      messages = initializeContext()
+      messages = initializeContext(language)
     }
 
     function startRecording() {
@@ -198,7 +211,10 @@
       formData.append('audio', audioBlob);
       formData.append('messages', JSON.stringify(messages));
       formData.append('echo', echo);
+      formData.append('language', language);
       const url = '/api01/submit_audio'
+      console.log('submitAudio url:', url)
+      console.log('data:', formData)
       fetch(url, {
         method: 'POST',
         body: formData,
@@ -295,6 +311,11 @@
       } else {
         echo = '';
       }
+    });
+    selectLanguageMenu.addEventListener('change', (event) => {
+      language = event.target.value
+      console.log('New language:', language)
+      messages = initializeContext(language)
     });
     // document.addEventListener("DOMContentLoaded", playGreeting);
     document.addEventListener("keydown", keyDownHandler);
