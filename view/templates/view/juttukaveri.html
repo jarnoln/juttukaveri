@@ -35,10 +35,14 @@
       width: 90%;
       color: white;
       padding: 6rem 2rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.26);
       margin: 0 0.5rem 0 0;
     }
 
+    button:disabled {
+      color: gray;
+      box-shadow: 0 0px 0px rgba(0, 0, 0, 0);
+    }
     .response {
       background-color: #bbbbbb;
       font-size: large;
@@ -144,7 +148,6 @@
           mediaRecorder.addEventListener('stop', function() {
             status = 'processing';
             stopButton.setAttribute('disabled', '');
-
             statusText.innerHTML = 'Odota hetki, kun mietin.';
             statusText.classList.remove('red-bg');
             const audioBlob = new Blob(chunks, { type: 'audio/mpeg' });
@@ -194,7 +197,6 @@
         startButton.setAttribute('disabled', '');
         stopButton.removeAttribute('disabled');
         stopButton.setAttribute('hidden', '');
-
         const transcribedContainer = document.createElement("p");
         transcribedContainer.classList.add('transcribed')
         transcribedContainer.innerHTML = transcription;
@@ -217,9 +219,15 @@
       });
     }
 
+    function enableRecord() {
+      startButton.removeAttribute('disabled');
+    }
+
     function playGreeting() {
       const audioUrl = 'https://public-bucket-jk.s3.eu-central-1.amazonaws.com/hei_kuka_sina_olet.mp3';
       const audio = new Audio(audioUrl);
+      startButton.setAttribute('disabled', '')
+      audio.addEventListener('ended', enableRecord)
       audio.play();
     }
 
@@ -231,6 +239,7 @@
 
     function playResponse(audioUrl) {
       const audio = new Audio(audioUrl);
+      audio.addEventListener('ended', enableRecord)
       audio.play();
     }
 
