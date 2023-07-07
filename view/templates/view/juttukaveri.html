@@ -87,6 +87,12 @@
         <span> - Vain toistaa, mitä kuulee. Ei käytä ChatGPT:tä.</span>
       </span>
       <button class="right" id="playButton">Toista alkutervehdys</button>
+      <button class="right"
+              id="clearContextButton"
+              title="Poistaa kontekstin, jossa ChatGPT alustetaan vastaamaan lapselle. Sen sijaan se vastaa kuten normaalisti aikuisille."
+              disabled>
+        Poista alustus lapselle
+      </button>
     </p>
     <div id="chatBox"></div>
   </div>
@@ -102,6 +108,7 @@
     const stopButton = document.getElementById('stopButton');
     const playButton = document.getElementById('playButton');
     const beginChatButton = document.getElementById('beginChatButton');
+    const clearContextButton = document.getElementById('clearContextButton');
     const echoCheckbox = document.getElementById('echoCheckbox');
     const statusText = document.getElementById('statusText');
     const chatBox = document.getElementById('chatBox');
@@ -131,6 +138,7 @@
       playGreeting();
       beginChatButton.setAttribute('hidden', '');
       startButton.removeAttribute('hidden');
+      clearContextButton.removeAttribute('disabled');
       const instructionsElement = document.getElementById('instructions');
       instructionsElement.innerHTML = `Paina alla olevaa nappia aloittaaksesi nauhoituksen ja kun olet valmis, paina
       pysäytysnappia lopettaaksesi nauhoituksen. Vaihtoehtoisesti voit aloittaa nauhoituksen painamalla välilyönnin
@@ -272,10 +280,15 @@
       }
     }
 
+    function clearContext() {
+      messages = []
+    }
+
     beginChatButton.addEventListener('click', beginChat);
     startButton.addEventListener('click', startRecording);
     stopButton.addEventListener('click', stopRecording);
     playButton.addEventListener('click', playGreeting);
+    clearContextButton.addEventListener('click', clearContext);
     echoCheckbox.addEventListener('change', () => {
       if (echoCheckbox.checked) {
         echo = 'Yes';
