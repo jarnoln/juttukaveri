@@ -26,7 +26,7 @@
       text-transform: uppercase;
     }
 
-    button {
+    .largeButton {
       font: inherit;
       font-size: xx-large;
       text-decoration: none;
@@ -49,7 +49,7 @@
       font-size: large;
     }
 
-    #startButton {
+    #startButton, #beginChatButton {
       background-color: #00aa00;
       border: 2px solid #00aa00;
     }
@@ -67,13 +67,16 @@
     <h2 id="statusText" class="white-bg"></h2>
 
     <p>
-      <button id="startButton">Aloita nauhoitus</button>
-      <button id="stopButton" hidden>Lopeta nauhoitus</button>
-      <button id="playButton" hidden>Tervehdys</button>
+      <button class="largeButton" id="beginChatButton">Aloita keskustelu</button>
+      <button class="largeButton" id="startButton" hidden>Aloita nauhoitus</button>
+      <button class="largeButton" id="stopButton" hidden>Lopeta nauhoitus</button>
     </p>
     <p>
-      <input type="checkbox" id="echoCheckbox" name="echo">
-      <label for="echoCheckbox">Vain kaiutus</label>
+      <span style="margin-right: 5rem">
+        <input type="checkbox" id="echoCheckbox" name="echo">
+        <label for="echoCheckbox">Vain kaiutus</label>
+      </span>
+      <button class="right" id="playButton">Toista alkutervehdys</button>
     </p>
     <div id="chatBox"></div>
   </div>
@@ -83,10 +86,12 @@
     let chunks = [];
     let status = 'ready';
     let echo = '';
+    let messages = [];
 
     const startButton = document.getElementById('startButton');
     const stopButton = document.getElementById('stopButton');
     const playButton = document.getElementById('playButton');
+    const beginChatButton = document.getElementById('beginChatButton');
     const echoCheckbox = document.getElementById('echoCheckbox');
     const statusText = document.getElementById('statusText');
     const chatBox = document.getElementById('chatBox');
@@ -111,8 +116,13 @@
       ];
     }
 
-    const messages = initializeContext()
-    console.log(messages)
+    // console.log(messages)
+    function beginChat() {
+      playGreeting();
+      beginChatButton.setAttribute('hidden', '');
+      startButton.removeAttribute('hidden');
+      messages = initializeContext()
+    }
 
     function startRecording() {
       navigator.mediaDevices.getUserMedia({ audio: true })
@@ -181,6 +191,7 @@
         console.log('Transcription:', transcription);
         document.getElementById('statusText').innerHTML = 'Valmis';
         startButton.removeAttribute('hidden');
+        startButton.setAttribute('disabled', '');
         stopButton.removeAttribute('disabled');
         stopButton.setAttribute('hidden', '');
 
@@ -241,6 +252,7 @@
       }
     }
 
+    beginChatButton.addEventListener('click', beginChat);
     startButton.addEventListener('click', startRecording);
     stopButton.addEventListener('click', stopRecording);
     playButton.addEventListener('click', playGreeting);
@@ -251,7 +263,7 @@
         echo = '';
       }
     });
-    document.addEventListener("DOMContentLoaded", playGreeting);
+    // document.addEventListener("DOMContentLoaded", playGreeting);
     document.addEventListener("keydown", keyDownHandler);
     document.addEventListener("keyup", keyUpHandler);
     document.getElementById('statusText').innerHTML = 'Valmis';
