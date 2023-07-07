@@ -32,7 +32,7 @@
       text-decoration: none;
       text-transform: uppercase;
       font-weight: bold;
-      width: 90%;
+      width: 100%;
       color: white;
       padding: 6rem 2rem;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.26);
@@ -70,6 +70,11 @@
 
     <h2 id="statusText" class="white-bg"></h2>
 
+    <p id="instructions">
+      Tämä on äänikäyttöliittymä OpenAI:n ChatGPT:lle. Suunnattu lähinnä lapsille,
+      koska tekstikäyttöliittymä on hieman hankala, jos ei osaa vielä lukea tai kirjoittaa.
+      Paina alla olevaa nappia aloittaaksesi.
+    </p>
     <p>
       <button class="largeButton" id="beginChatButton">Aloita keskustelu</button>
       <button class="largeButton" id="startButton" hidden>Aloita nauhoitus</button>
@@ -77,8 +82,9 @@
     </p>
     <p>
       <span style="margin-right: 5rem">
-        <input type="checkbox" id="echoCheckbox" name="echo">
-        <label for="echoCheckbox">Vain kaiutus</label>
+        <input type="checkbox" id="echoCheckbox" checked=False" name="echo">
+        <label for="echoCheckbox">Kaiku</label>
+        <span> - Vain toistaa, mitä kuulee. Ei käytä ChatGPT:tä.</span>
       </span>
       <button class="right" id="playButton">Toista alkutervehdys</button>
     </p>
@@ -125,6 +131,11 @@
       playGreeting();
       beginChatButton.setAttribute('hidden', '');
       startButton.removeAttribute('hidden');
+      const instructionsElement = document.getElementById('instructions');
+      instructionsElement.innerHTML = `Paina alla olevaa nappia aloittaaksesi nauhoituksen ja kun olet valmis, paina
+      pysäytysnappia lopettaaksesi nauhoituksen. Vaihtoehtoisesti voit aloittaa nauhoituksen painamalla välilyönnin
+      pohjaan ja päästää sen ylös, kun olet valmis.  Sen jälkeen tallenne lähetetään ChatGPT:lle ja jonkin ajan kuluttua
+      pitäisi kuulua vastaus.`
       messages = initializeContext()
     }
 
