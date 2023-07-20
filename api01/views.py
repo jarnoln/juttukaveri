@@ -8,7 +8,7 @@ import openai
 
 from util.aws_api import AwsApi
 
-from .models import Session
+from .models import Session, Transcript, Reply
 
 logger = logging.getLogger(__name__)
 
@@ -44,11 +44,11 @@ def submit_audio(request):
     logger.info('messages: {}'.format(str(messages)))
     openai.api_key = settings.OPENAI_API_KEY
     # transcript = openai.Audio.transcribe('whisper-1', file=audio_file, language='fi')
-    transcript = handle_uploaded_audio_file(audio_file, messages, echo, language_code)
+    transcript = handle_uploaded_audio_file(session, audio_file, messages, echo, language_code)
     return Response(transcript)
 
 
-def handle_uploaded_audio_file(audio_file, messages: list, echo: bool = False, language_code: str = 'fi-FI') -> dict:
+def handle_uploaded_audio_file(session, audio_file, messages: list, echo: bool = False, language_code: str = 'fi-FI') -> dict:
     """ Save incoming audio to file, send it to OpenAI Whisper to transcribe to text"""
     logger.info('handle_uploaded_audio_file')
     # Save to file
@@ -67,6 +67,7 @@ def handle_uploaded_audio_file(audio_file, messages: list, echo: bool = False, l
     logger.info('Transcript:')
     logger.info(transcript)
     transcript_text = transcript['text']
+    Transcript.objects.create(session=session, text=transcript_text)
 
     if echo:
         # Just repeat what user said without calling Chat
@@ -84,6 +85,7 @@ def handle_uploaded_audio_file(audio_file, messages: list, echo: bool = False, l
 
     # Save generated audio file to S3 and send URL to frontend
     audio_url = aws_api.upload_file_to_s3(local_file_path)
+    Reply.objects.create(session=session, audio_url=audio_url, text=response_text)
     return {
         'transcript': transcript_text,
         'responseText': response_text,
