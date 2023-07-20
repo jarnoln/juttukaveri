@@ -8,6 +8,7 @@ import openai
 
 from util.aws_api import AwsApi
 
+from .models import Session
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,7 @@ def start_session(request):
     logger.info('request.POST=%s' % request.POST)
     session_id = secrets.token_urlsafe(32)
     logger.info('session_id=%s' % str(session_id))
+    Session.objects.create(session_id=session_id)
     return Response({'id': session_id})
 
 
@@ -28,9 +30,12 @@ def submit_audio(request):
     # logger.info('request.FILES=%s' % request.FILES)
     logger.info('request.POST=%s' % request.POST)
     audio_file = request.FILES['audio']
+    session_id = request.POST['session']
     messages_string = request.POST['messages']
     echo_str = request.POST['echo']
     language_code = request.POST['language']
+    session = Session.objects.get(session_id=session_id)
+
     if echo_str:
         echo = True
     else:

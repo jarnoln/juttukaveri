@@ -110,6 +110,7 @@
     let echo = '';
     let messages = [];
     let language = 'fi-FI';
+    let sessionId = '';
 
     const startButton = document.getElementById('startButton');
     const stopButton = document.getElementById('stopButton');
@@ -149,6 +150,7 @@
     // console.log(messages)
     function beginChat() {
       playGreeting();
+      startSession();
       beginChatButton.setAttribute('hidden', '');
       startButton.removeAttribute('hidden');
       clearContextButton.removeAttribute('disabled');
@@ -212,6 +214,7 @@
       formData.append('messages', JSON.stringify(messages));
       formData.append('echo', echo);
       formData.append('language', language);
+      formData.append('session', sessionId);
       const url = '/api01/submit_audio'
       console.log('submitAudio url:', url)
       console.log('data:', formData)
@@ -259,9 +262,9 @@
     }
 
     function startSession() {
-      const url = '/api01/start_session'
+      const url = '/api01/start_session';
       const formData = new FormData();
-      console.log('startSession url:', url)
+      console.log('startSession url:', url);
       fetch(url, {
         method: 'POST',
         body: formData,
@@ -271,6 +274,8 @@
       })
       .then(function(data) {
         console.log(data)
+        sessionId = data['id']
+        console.log('sessionId', sessionId)
       })
     }
 
