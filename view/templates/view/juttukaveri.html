@@ -258,6 +258,22 @@
       startButton.removeAttribute('disabled');
     }
 
+    function startSession() {
+      const url = '/api01/start_session'
+      const formData = new FormData();
+      console.log('startSession url:', url)
+      fetch(url, {
+        method: 'POST',
+        body: formData,
+      })
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(data) {
+        console.log(data)
+      })
+    }
+
     function playGreeting() {
       const audioUrl = 'https://public-bucket-jk.s3.eu-central-1.amazonaws.com/hei_kuka_sina_olet.mp3';
       const audio = new Audio(audioUrl);

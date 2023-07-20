@@ -18,7 +18,7 @@ def start_session(request):
     logger.info('request.POST=%s' % request.POST)
     session_id = secrets.token_urlsafe(32)
     logger.info('session_id=%s' % str(session_id))
-    return Response(session_id)
+    return Response({'id': session_id})
 
 
 @api_view(['POST'])

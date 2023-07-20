@@ -1,3 +1,5 @@
+import json
+
 from django.test import TestCase
 from django.urls import reverse
 
@@ -12,4 +14,5 @@ class SessionViewTests(TestCase):
         url = reverse("start_session")
         response = self.client.post(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.content), 45)
+        data_out = json.loads(response.content.decode())
+        self.assertEqual(len(data_out['id']), 43)
