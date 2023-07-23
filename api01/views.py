@@ -1,6 +1,9 @@
+import datetime
 import json
 import logging
 import secrets
+import zoneinfo
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.conf import settings
@@ -91,7 +94,8 @@ def handle_uploaded_audio_file(
     # local_file_path = aws_api.text_to_speech(transcript_text)
     # Convert received response to voice audio using Amazon Polly
 
-    file_name = "response.mp3"
+    timestamp = datetime.datetime.now(tz=zoneinfo.ZoneInfo(settings.TIME_ZONE)).strftime("%Y-%m-%d_%H-%M-%S")
+    file_name = "{}_{}_response.mp3".format(timestamp, session.session_id)
     local_file_path = aws_api.text_to_speech(response_text, file_name, language_code)
 
     # Save generated audio file to S3 and send URL to frontend
