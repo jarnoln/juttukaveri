@@ -23,6 +23,7 @@ def deploy(context, user, host):
     _init_virtualenv(connection, site_folder)
     _get_latest_source(connection, source_folder)
     _install_virtualenv_libraries(connection, source_folder, pip)
+    # _run_pipenv(connection, source_folder, virtualenv, python)
     _check_site_config(connection, source_folder, django_setting_directory_name, python)
     _update_database(connection, source_folder, python)
     # _update_static_files(connection, source_folder)
@@ -54,6 +55,11 @@ def _get_latest_source(c, source_folder):
         c.run("cd {} && git config pull.rebase false".format(source_folder))
     else:
         c.run("cd {} && git pull".format(source_folder))
+
+
+def _run_pipenv(c, source_folder, virtualenv, python):
+    """ Not yet in use, Pipenv does not currently work properly"""
+    c.run("cd {} && VIRTUAL_ENV={} pipenv --python={} install --deploy".format(source_folder, virtualenv, python))
 
 
 def _install_virtualenv_libraries(c, source_folder, pip):
