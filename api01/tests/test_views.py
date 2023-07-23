@@ -15,4 +15,4 @@ class SessionViewTests(TestCase):
         response = self.client.post(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data_out = json.loads(response.content.decode())
-        self.assertEqual(len(data_out['id']), 43)
+        self.assertEqual(len(data_out["id"]), 43)

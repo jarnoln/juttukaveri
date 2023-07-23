@@ -5,30 +5,59 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('api01', '0001_initial'),
+        ("api01", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Transcript',
+            name="Transcript",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('audio_url', models.CharField(max_length=500)),
-                ('text', models.TextField()),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('session', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='transcripts', to='api01.session')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("audio_url", models.CharField(max_length=500)),
+                ("text", models.TextField()),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                (
+                    "session",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="transcripts",
+                        to="api01.session",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Reply',
+            name="Reply",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('audio_url', models.CharField(max_length=500)),
-                ('text', models.TextField()),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('session', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='replies', to='api01.session')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("audio_url", models.CharField(max_length=500)),
+                ("text", models.TextField()),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                (
+                    "session",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="replies",
+                        to="api01.session",
+                    ),
+                ),
             ],
         ),
     ]
