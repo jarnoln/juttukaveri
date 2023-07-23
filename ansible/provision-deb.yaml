@@ -17,6 +17,7 @@
         - build-essential
         - python3-dev
         - python3-virtualenv
+        - pipenv
         - certbot
         - python3-certbot-nginx
 
