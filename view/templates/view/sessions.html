@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sessiot</title>
+    <style>
+      body { text-align: center; }
+    </style>
+  </head>
+  <body>
+    <div id="content">
+      <h1>Sessiot</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>Started</th>
+            <th>IP</th>
+            <th>Browser</th>
+            <th>Transcripts</th>
+          </tr>
+        </thead>
+        <tbody>
+      {% for session in sessions %}
+          <tr>
+            <td>{{ session.created|date:"Y-m-d H:i" }}</td>
+            <td>{{ session.ip }}</td>
+            <td>{{ session.agent }}</td>
+            <td>{{ session.transcripts.count }}</td>
+          </tr>
+        {% for transcript in session.transcripts.all %}
+          <tr>
+            <td colspan="4">
+              {{ transcript.text }}
+            </td>
+          </tr>
+        {% endfor %}
+        {% for reply in session.replies.all %}
+          <tr>
+            <td colspan="4">
+              {{ reply.text }}
+            </td>
+          </tr>
+        {% endfor %}
+      {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
