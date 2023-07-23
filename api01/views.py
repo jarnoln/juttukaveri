@@ -22,7 +22,16 @@ def start_session(request):
     logger.info("request.POST=%s" % request.POST)
     session_id = secrets.token_urlsafe(32)
     logger.info("session_id=%s" % str(session_id))
-    Session.objects.create(session_id=session_id)
+    session = Session.objects.create(session_id=session_id)
+    session.ip = request.META.get("REMOTE_ADDR")
+    session.agent = request.META.get("HTTP_USER_AGENT")
+    session.referer = request.META.get("HTTP_REFERER")
+    session.save()
+    logger.info(
+        "ip={} agent={} referer={}".format(
+            session.ip, session.agent, session.ip, session.referer
+        )
+    )
     return Response({"id": session_id})
 
 
@@ -32,6 +41,7 @@ def submit_audio(request):
     logger.info("submit_audio")
     # logger.info('request.FILES=%s' % request.FILES)
     logger.info("request.POST=%s" % request.POST)
+    # logger.info("request.META=%s" % request.META)
     audio_file = request.FILES["audio"]
     session_id = request.POST["session"]
     messages_string = request.POST["messages"]
@@ -94,7 +104,9 @@ def handle_uploaded_audio_file(
     # local_file_path = aws_api.text_to_speech(transcript_text)
     # Convert received response to voice audio using Amazon Polly
 
-    timestamp = datetime.datetime.now(tz=zoneinfo.ZoneInfo(settings.TIME_ZONE)).strftime("%Y-%m-%d_%H-%M-%S")
+    timestamp = datetime.datetime.now(
+        tz=zoneinfo.ZoneInfo(settings.TIME_ZONE)
+    ).strftime("%Y-%m-%d_%H-%M-%S")
     file_name = "{}_{}_response.mp3".format(timestamp, session.session_id)
     local_file_path = aws_api.text_to_speech(response_text, file_name, language_code)
 
