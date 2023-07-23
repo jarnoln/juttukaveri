@@ -11,6 +11,8 @@ openai = "==0.27.8"
 
 [dev-packages]
 black = "*"
+
+[deploy]
 fabric = "==3.*"
 ansible = "==8.*"
 
