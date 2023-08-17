@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging
+import os
 import secrets
 import zoneinfo
 
@@ -14,6 +15,15 @@ from util.aws_api import AwsApi
 from .models import Session, Transcript, Reply
 
 logger = logging.getLogger(__name__)
+
+
+@api_view(["GET"])
+def about(request):
+    logger.info("about")
+    readme_path = os.path.join(settings.BASE_DIR, 'README.md')
+    with open(readme_path, 'r') as readme_file:
+        readme_content = readme_file.read()
+    return Response({"readme": readme_content})
 
 
 @api_view(["POST"])
