@@ -7,14 +7,23 @@ import zoneinfo
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from django.conf import settings
 import openai
 
 from util.aws_api import AwsApi
 
 from .models import Session, Transcript, Reply
+from .serializers import SessionSerializer
 
 logger = logging.getLogger(__name__)
+
+
+class SessionList(APIView):
+    def get(self, request):
+        sessions = Session.objects.all()
+        serializer = SessionSerializer(sessions, many=True)
+        return Response(serializer.data)
 
 
 @api_view(["GET"])
