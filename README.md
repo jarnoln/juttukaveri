@@ -15,6 +15,19 @@ can just tell her to ask the nice AI lady and save myself the trouble. Or if she
 feels bored and wants to talk with somebody. A small step towards delegating all kinds to parenting responsibilities to
 AI.
 
+## Instructions
+
+Pick language to use (mostly for text-to-speech and speech-to-text).
+Pick role (gives ChatGPT initial prompt to set the tone) and child's age (optional).
+Can also be used without role and without initialization, so ChatGPT will reply like to normal chat.
+Then press "Start conversation".
+
+Recording speech is still a bit tricky because recording needs to be started and stopped manually either by pushing
+the start/stop recording button or pressing space bar while recording, but at least my daughter seemed to get
+hang of it fairly quickly.
+
+Open source (MIT licence), sources available on [GitHub](https://github.com/jarnoln/juttukaveri)
+
 Created using:
 * [Django](https://www.djangoproject.com/)(4.2)
 * [Django REST framework](https://www.django-rest-framework.org/)
