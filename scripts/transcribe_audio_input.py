@@ -4,7 +4,7 @@ import os
 import pyttsx3
 import speech_recognition
 # import time
-import typing
+# import typing
 
 
 OPENAI_KEY = os.environ.get('OPENAI_KEY', '')
@@ -78,6 +78,7 @@ def transcribe_audio_input(language: str, age: int) -> None:
                 break
             except speech_recognition.UnknownValueError as err:
                 print('Sorry, I did not understand that')
+                print(err)
                 continue
             print('Google speech to text:')
             print(result_google)

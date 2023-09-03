@@ -1,8 +1,7 @@
-import argparse
 import speech_recognition
 import time
 from google.cloud import texttospeech
-import sys
+import pyttsx3
 from playsound import playsound
 
 
@@ -24,7 +23,7 @@ def transcribe_audio_input():
     mic = speech_recognition.Microphone()
     tts_client = texttospeech.TextToSpeechClient()
     say(tts_client, 'Heippa vaan')
-    sys.exit(1)
+    tts = pyttsx3.init()
     with mic as source:
         recognizer.adjust_for_ambient_noise(source)
         greet = 'Sano jotain'
@@ -43,6 +42,7 @@ def transcribe_audio_input():
                 break
             except speech_recognition.UnknownValueError as err:
                 print('Sori, en saanut selvää')
+                print(err)
                 continue
             print('Google:')
             print(result_google)

@@ -47,7 +47,7 @@ def start_session(request):
     session.referer = request.META.get("HTTP_REFERER")
     session.save()
     logger.info(
-        "ip={} agent={} referer={}".format(
+        "ip={} agent={} ip={} referer={}".format(
             session.ip, session.agent, session.ip, session.referer
         )
     )
