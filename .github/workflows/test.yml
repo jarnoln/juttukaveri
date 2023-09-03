@@ -26,6 +26,6 @@ jobs:
       - name: Lint with ruff
         run: ruff . --format=github
       - name: Test
-        run: coverage --source=api01 run manage.py test -v2
+        run: coverage run --source=api01 manage.py test -v2
       - name: Report results
         run: coverage report
