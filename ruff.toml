@@ -1,0 +1,2 @@
+line-length = 120
+ignore = ["F401"]  # Ignore unused imports (mostly in settings.py)
