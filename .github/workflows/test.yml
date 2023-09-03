@@ -12,13 +12,17 @@ jobs:
         uses: actions/checkout@v3
       - name: Install dependencies
         run: |
+          python --version
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install ruff
       - name: Generate site config
         run: python juttukaveri/generate_site_config.py juttukaveri/site_config.py
       - name: Migrate
         run: |
           python manage.py makemigrations
           python manage.py migrate
+      - name: Lint with ruff
+        run: ruff --format=github
       - name: Test
         run: python manage.py test
