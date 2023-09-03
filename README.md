@@ -1,5 +1,8 @@
 # Juttukaveri
 
+[![github](https://github.com/jarnoln/atange-backend/actions/workflows/django.yml/badge.svg)](https://github.com/jarnoln/atange-backend/actions/workflows/django.yml)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 Voice interface to ChatGPT
 
 Idea to this came when my daughter was attempting to have conversation with car navigator voice.
@@ -82,5 +85,5 @@ Edit `ansible/inventory.example`  with your actual host information and rename i
     ansible-playbook -i ansible/inventory ansible/provision-deb.yaml
     invoke deploy --user=[your_username] --host=[your_host]
 
-This will create `atange/site_config.py`-file with default values, but they need to be replaced with
-actual host-specific values (especially `ALLOWED_HOSTS` and `CORS_ALLOWED_ORIGINS`)
+This will create `juttukaveri/site_config.py`-file to your server with default values, but they need to be replaced
+manually with actual host-specific values (especially `ALLOWED_HOSTS` and `CORS_ALLOWED_ORIGINS`)

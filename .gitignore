@@ -2,6 +2,7 @@ site_config.py
 ansible/inventory
 audio
 .idea
+.coverage
 __pycache__
 db.sqlite3
 *.pyc
