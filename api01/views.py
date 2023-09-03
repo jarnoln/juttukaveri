@@ -29,8 +29,8 @@ class SessionList(APIView):
 @api_view(["GET"])
 def about(request):
     logger.info("about")
-    readme_path = os.path.join(settings.BASE_DIR, 'README.md')
-    with open(readme_path, 'r') as readme_file:
+    readme_path = os.path.join(settings.BASE_DIR, "README.md")
+    with open(readme_path, "r") as readme_file:
         readme_content = readme_file.read()
     return Response({"readme": readme_content})
 

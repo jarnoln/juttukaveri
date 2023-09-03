@@ -7,15 +7,13 @@ def transcribe_file(speech_file):
     audio_file = speech_recognition.AudioFile(speech_file)
     with audio_file as source:
         audio = recognizer.record(source)
-        result_google = recognizer.recognize_google(audio, language='fi-FI')
-        print('Google:')
+        result_google = recognizer.recognize_google(audio, language="fi-FI")
+        print("Google:")
         print(result_google)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "file_name", help="Name of audio file to be transcribed"
-    )
+    parser.add_argument("file_name", help="Name of audio file to be transcribed")
     args = parser.parse_args()
     transcribe_file(args.file_name)

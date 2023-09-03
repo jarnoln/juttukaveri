@@ -12,7 +12,5 @@ def juttukaveri(request):
 
 
 def sessions(request):
-    context = {
-        'sessions': Session.objects.all().order_by('created')
-    }
+    context = {"sessions": Session.objects.all().order_by("created")}
     return render(request=request, template_name="view/sessions.html", context=context)

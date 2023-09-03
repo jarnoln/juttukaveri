@@ -16,8 +16,8 @@ def deploy(context, user, host):
     virtualenv = os.path.join(site_folder, "virtualenv")
     python = virtualenv + "/bin/python"
     pip = virtualenv + "/bin/pip"
-    django_setting_directory_name = 'juttukaveri'
-    app_name = 'juttukaveri'
+    django_setting_directory_name = "juttukaveri"
+    app_name = "juttukaveri"
     connection = Connection(host=host, user=user)
     _create_directory_structure_if_necessary(connection, site_folder)
     _init_virtualenv(connection, site_folder)
@@ -27,7 +27,9 @@ def deploy(context, user, host):
     _check_site_config(connection, source_folder, django_setting_directory_name, python)
     _update_database(connection, source_folder, python)
     # _update_static_files(connection, source_folder)
-    _run_remote_unit_tests(connection, source_folder, django_setting_directory_name, python)
+    _run_remote_unit_tests(
+        connection, source_folder, django_setting_directory_name, python
+    )
     _check_settings(connection, source_folder, django_setting_directory_name, python)
     _restart_gunicorn(connection, app_name)
     _restart_nginx(connection)
@@ -58,8 +60,12 @@ def _get_latest_source(c, source_folder):
 
 
 def _run_pipenv(c, source_folder, virtualenv, python):
-    """ Not yet in use, Pipenv does not currently work properly"""
-    c.run("cd {} && VIRTUAL_ENV={} pipenv --python={} install --deploy".format(source_folder, virtualenv, python))
+    """Not yet in use, Pipenv does not currently work properly"""
+    c.run(
+        "cd {} && VIRTUAL_ENV={} pipenv --python={} install --deploy".format(
+            source_folder, virtualenv, python
+        )
+    )
 
 
 def _install_virtualenv_libraries(c, source_folder, pip):

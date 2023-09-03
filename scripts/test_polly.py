@@ -13,7 +13,7 @@ try:
         LanguageCode="fi-FI",
         OutputFormat="mp3",
         VoiceId="Suvi",
-        Engine="neural"
+        Engine="neural",
     )
     print(response)
 except (BotoCoreError, ClientError) as error:

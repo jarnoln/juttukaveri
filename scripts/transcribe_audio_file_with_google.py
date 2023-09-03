@@ -10,7 +10,7 @@ def transcribe_file(speech_file):
         config = speech.RecognitionConfig(
             encoding=speech.RecognitionConfig.AudioEncoding.FLAC,
             sample_rate_hertz=16000,
-            language_code="fi-FI"
+            language_code="fi-FI",
         )
 
         client = speech.SpeechClient()
@@ -25,8 +25,6 @@ def transcribe_file(speech_file):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "file_name", help="Name of audio file to be transcribed"
-    )
+    parser.add_argument("file_name", help="Name of audio file to be transcribed")
     args = parser.parse_args()
     transcribe_file(args.file_name)
