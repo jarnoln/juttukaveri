@@ -3,7 +3,7 @@
 [![github](https://github.com/jarnoln/juttukaveri/actions/workflows/test.yml/badge.svg)](https://github.com/jarnoln/juttukaveri/actions/workflows/test.yml)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-Voice interface to ChatGPT
+Voice interface to OpenAI's [ChatGPT](https://openai.com/chatgpt).
 
 Idea to this came when my daughter was attempting to have conversation with car navigator voice.
 
@@ -29,14 +29,21 @@ Recording speech is still a bit tricky because recording needs to be started and
 the start/stop recording button or pressing space bar while recording, but at least my daughter seemed to get
 hang of it fairly quickly.
 
-Open source (MIT licence), sources available on [GitHub](https://github.com/jarnoln/juttukaveri)
+Open source (MIT licence), sources available on GitHub:
+* [Backend](https://github.com/jarnoln/juttukaveri)
+* [Frontend](https://github.com/jarnoln/juttukaveri-front)
 
-Created using:
+Backend created with:
 * [Django](https://www.djangoproject.com/)(4.2)
 * [Django REST framework](https://www.django-rest-framework.org/)
 * Speech-to-Text: [OpenAI Whisper](https://platform.openai.com/docs/guides/speech-to-text)
 * Response generation: [OpenAI ChatGPT](https://platform.openai.com/docs/guides/gpt/chat-completions-api)
 * Text-to-Speech: [Amazon Polly](https://aws.amazon.com/polly/)
+
+Frontend created with:
+* Framework: [Vue 3](https://vuejs.org/) + [TypeScript](https://www.typescriptlang.org/)
+* Tooling: [Vite](https://vitejs.dev/)
+* Store: [Pinia](https://pinia.vuejs.org/)
 
 Operation:
 1. Record speech
