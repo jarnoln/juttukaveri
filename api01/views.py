@@ -42,7 +42,8 @@ def start_session(request):
     session_id = secrets.token_urlsafe(32)
     logger.info("session_id=%s" % str(session_id))
     session = Session.objects.create(session_id=session_id)
-    session.ip = request.META.get("REMOTE_ADDR")
+    # session.ip = request.META.get("REMOTE_ADDR")
+    session.ip = request.POST['ip']
     session.agent = request.META.get("HTTP_USER_AGENT")
     session.referer = request.META.get("HTTP_REFERER")
     session.save()

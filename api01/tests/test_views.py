@@ -14,8 +14,11 @@ class StartSessionViewTests(TestCase):
 
     def test_get_session_id(self):
         url = reverse("start_session")
-        response = self.client.post(url)
+        response = self.client.post(url, data={'ip': '1.2.3.4'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Session.objects.count(), 1)
+        session = Session.objects.first()
+        self.assertEqual(session.ip, '1.2.3.4')
         data_out = json.loads(response.content.decode())
         self.assertEqual(len(data_out["id"]), 43)
 
