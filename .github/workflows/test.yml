@@ -16,6 +16,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install ruff
+          pip install mypy
           pip install coverage
       - name: Generate site config
         run: python juttukaveri/generate_site_config.py juttukaveri/site_config.py
@@ -25,6 +26,8 @@ jobs:
           python manage.py migrate
       - name: Lint with ruff
         run: ruff . --format=github
+      - name: Check typing with mypy
+        run: mypy .
       - name: Test
         run: coverage run --source=api01 manage.py test -v2
       - name: Report results
