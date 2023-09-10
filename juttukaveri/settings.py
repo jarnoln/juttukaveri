@@ -25,9 +25,10 @@ PROJECT_NAME = Path(__file__).parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("SECRET_KEY", "")
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS")
-if ALLOWED_HOSTS:
-    ALLOWED_HOSTS = ALLOWED_HOSTS.split(" ")
+ALLOWED_HOSTS_ENV = os.environ.get("ALLOWED_HOSTS")
+ALLOWED_HOSTS = []
+if ALLOWED_HOSTS_ENV:
+    ALLOWED_HOSTS = ALLOWED_HOSTS_ENV.split(" ")
 
 if SECRET_KEY == "":
     try:
@@ -148,10 +149,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 if DEBUG:
     LOG_DIR = BASE_DIR
 else:
-    LOG_DIR = os.path.join(SITE_DIR, "log")
+    LOG_DIR = SITE_DIR / "log"
 
 # assert os.path.exists(LOG_DIR), 'Log directory {} does not exist'.format(LOG_DIR)
-LOG_FILE = os.path.join(LOG_DIR, "django.log")
+LOG_FILE = LOG_DIR / "django.log"
 
 LOGGING = {
     "version": 1,

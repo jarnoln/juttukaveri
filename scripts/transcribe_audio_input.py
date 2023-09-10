@@ -26,7 +26,7 @@ def create_response_text(messages: list) -> str:
     print(messages)
     response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
     print(response)
-    response_text = response.choices[0]["message"]["content"]
+    response_text = str(response.choices[0]["message"]["content"])
     print(response_text)
     return response_text
 

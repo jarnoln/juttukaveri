@@ -70,7 +70,7 @@ class AwsApi:
         response = s3.generate_presigned_url(
             "get_object", Params=params, ExpiresIn=3600
         )
-        return response
+        return str(response)
 
 
 if __name__ == "__main__":
