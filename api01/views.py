@@ -38,12 +38,12 @@ def about(request):
 @api_view(["POST"])
 def start_session(request):
     logger.info("submit_audio")
-    logger.info("request.POST=%s" % request.POST)
+    logger.info("request.POST=%s" % request.POST.dict())
     session_id = secrets.token_urlsafe(32)
     logger.info("session_id=%s" % str(session_id))
     session = Session.objects.create(session_id=session_id)
     # session.ip = request.META.get("REMOTE_ADDR")
-    session.ip = request.POST['ip']
+    session.ip = request.POST.get("ip", "")
     session.agent = request.META.get("HTTP_USER_AGENT")
     session.referer = request.META.get("HTTP_REFERER")
     session.save()
@@ -60,7 +60,7 @@ def submit_audio(request):
     """Submit resume"""
     logger.info("submit_audio")
     # logger.info('request.FILES=%s' % request.FILES)
-    logger.info("request.POST=%s" % request.POST)
+    logger.info("request.POST=%s" % request.POST.dict())
     # logger.info("request.META=%s" % request.META)
     audio_file = request.FILES["audio"]
     session_id = request.POST["session"]
