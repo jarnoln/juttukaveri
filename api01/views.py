@@ -5,6 +5,7 @@ import os
 import secrets
 import zoneinfo
 
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -37,37 +38,74 @@ def about(request):
 
 @api_view(["POST"])
 def start_session(request):
-    logger.info("submit_audio")
-    logger.info("request.POST=%s" % request.POST.dict())
-    session_id = secrets.token_urlsafe(32)
-    logger.info("session_id=%s" % str(session_id))
-    session = Session.objects.create(session_id=session_id)
-    # session.ip = request.META.get("REMOTE_ADDR")
-    session.ip = request.POST.get("ip", "")
-    session.agent = request.META.get("HTTP_USER_AGENT")
-    session.referer = request.META.get("HTTP_REFERER")
-    session.save()
+    logger.info("start_session POST=%s" % request.POST.dict())
+    ip = request.POST.get("ip")
+    previous_sessions = Session.objects.filter(ip=ip)
     logger.info(
-        "ip={} agent={} ip={} referer={}".format(
-            session.ip, session.agent, session.ip, session.referer
-        )
+        "Previous sessions from ip {}: {}".format(ip, previous_sessions.count())
     )
-    return Response({"id": session_id})
+    today = datetime.date.today()
+    sessions_today = Session.objects.filter(ip=ip, created__day=today.day)
+    logger.info("Previous sessions today: {}".format(sessions_today.count()))
+
+    replies_today = Reply.objects.filter(
+        session__ip=ip, session__created__day=today.day
+    )
+    replies_today = replies_today.count()
+    logger.info("Replies today: {}".format(replies_today))
+    if replies_today < 10:
+        session_id = secrets.token_urlsafe(32)
+        logger.info("session_id=%s" % str(session_id))
+        session = Session.objects.create(session_id=session_id)
+        session.ip = ip
+        session.agent = request.META.get("HTTP_USER_AGENT")
+        session.referer = request.META.get("HTTP_REFERER")
+        session.save()
+        message = "New session created"
+        status_code = status.HTTP_201_CREATED
+        logger.info(
+            "ip={} agent={} ip={} referer={}".format(
+                session.ip, session.agent, session.ip, session.referer
+            )
+        )
+    else:
+        session_id = ""
+        message = "Daily message count exceeded"
+        status_code = status.HTTP_429_TOO_MANY_REQUESTS
+    return Response(
+        {
+            "id": session_id,
+            "repliesToday": replies_today,
+            "message": message,
+        },
+        status=status_code,
+    )
 
 
 @api_view(["POST"])
 def submit_audio(request):
     """Submit resume"""
     logger.info("submit_audio")
-    # logger.info('request.FILES=%s' % request.FILES)
     logger.info("request.POST=%s" % request.POST.dict())
-    # logger.info("request.META=%s" % request.META)
     audio_file = request.FILES["audio"]
     session_id = request.POST["session"]
+    if session_id == "":
+        message = "No session ID provided"
+        logger.warning(message)
+        return Response(data={"message": message}, status=status.HTTP_400_BAD_REQUEST)
+
     messages_string = request.POST["messages"]
     echo_str = request.POST["echo"]
     language_code = request.POST["language"]
+
     session = Session.objects.get(session_id=session_id)
+    session_reply_count = Reply.objects.filter(session=session).count()
+    if session_reply_count > 10:
+        message = "Reply count exceeded"
+        logger.warning(message)
+        return Response(
+            data={"message": message}, status=status.HTTP_429_TOO_MANY_REQUESTS
+        )
 
     if echo_str:
         echo = True
@@ -76,7 +114,6 @@ def submit_audio(request):
     messages = json.loads(messages_string)
     logger.info("messages: {}".format(str(messages)))
     openai.api_key = settings.OPENAI_API_KEY
-    # transcript = openai.Audio.transcribe('whisper-1', file=audio_file, language='fi')
     transcript = handle_uploaded_audio_file(
         session, audio_file, messages, echo, language_code
     )

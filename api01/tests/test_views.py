@@ -15,12 +15,27 @@ class StartSessionViewTests(TestCase):
     def test_get_session_id(self):
         url = reverse("start_session")
         response = self.client.post(url, data={"ip": "1.2.3.4"})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Session.objects.count(), 1)
         session = Session.objects.first()
         self.assertEqual(session.ip, "1.2.3.4")
         data_out = json.loads(response.content.decode())
         self.assertEqual(len(data_out["id"]), 43)
+        self.assertEqual(data_out["message"], "New session created")
+        self.assertEqual(data_out["repliesToday"], 0)
+
+    def test_get_session_too_many_replies(self):
+        session_1 = Session.objects.create(session_id="abc", ip="1.2.3.4")
+        for i in range(0, 10):
+            Reply.objects.create(session=session_1)
+
+        url = reverse("start_session")
+        response = self.client.post(url, data={"ip": "1.2.3.4"})
+        self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
+        data_out = json.loads(response.content.decode())
+        self.assertEqual(len(data_out["id"]), 0)
+        self.assertEqual(data_out["message"], "Daily message count exceeded")
+        self.assertEqual(data_out["repliesToday"], 10)
 
 
 class SessionListViewTests(TestCase):
