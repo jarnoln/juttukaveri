@@ -25,7 +25,7 @@ jobs:
           python manage.py makemigrations
           python manage.py migrate
       - name: Lint with ruff
-        run: ruff
+        run: ruff check
       - name: Check typing with mypy
         run: mypy .
       - name: Test
