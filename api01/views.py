@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.conf import settings
 import openai
+from openai import OpenAI
 
 from util.aws_api import AwsApi
 
@@ -113,12 +114,11 @@ def submit_audio(request):
         echo = False
     messages = json.loads(messages_string)
     logger.info("messages: {}".format(str(messages)))
-    openai.api_key = settings.OPENAI_API_KEY
     try:
         transcript = handle_uploaded_audio_file(
             session, audio_file, messages, echo, language_code
         )
-    except openai.error.RateLimitError as exc:
+    except openai.RateLimitError as exc:
         logger.warning("No more OpenAI credits or rate limits exceeded: {}".format(exc))
         message = "OpenAI rate limits exceeded"
         return Response(
@@ -143,17 +143,17 @@ def handle_uploaded_audio_file(
 
     # Upload file to OpenAI Whisper ro transcribe it to text
     opened_audio_file = open("audio.wav", "rb")
-    openai.api_key = settings.OPENAI_API_KEY
     # Whisper uses two-letter ISO-639-1 language codes while AWS Polly uses longer language codes with hyphen
     language = language_code.split("-")[0]
     if language == "cmn":
         language = "zh"
-    transcript = openai.Audio.transcribe(
-        "whisper-1", file=opened_audio_file, language=language
+    client = OpenAI(api_key=settings.OPENAI_API_KEY)
+    transcript = client.audio.transcriptions.create(
+        model="whisper-1", file=opened_audio_file, language=language
     )
     logger.info("Transcript:")
     logger.info(transcript)
-    transcript_text = transcript["text"]
+    transcript_text = transcript.text
     Transcript.objects.create(session=session, text=transcript_text)
 
     if echo:
@@ -187,8 +187,9 @@ def handle_uploaded_audio_file(
 def create_response_text(messages: list) -> str:
     logger.info("Sending messages to OpenAI ChatCompletion API:")
     logger.info(messages)
-    response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
+    client = OpenAI(api_key=settings.OPENAI_API_KEY)
+    response = client.chat.completions.create(model="gpt-3.5-turbo", messages=messages)
     logger.info("Response from ChatCompletion:")
     logger.info(response)
-    response_text = str(response.choices[0]["message"]["content"])
+    response_text = str(response.choices[0].message.content)
     return response_text

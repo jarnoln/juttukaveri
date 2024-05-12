@@ -1,11 +1,10 @@
 import argparse
-import openai
 import os
+
 import pyttsx3
 import speech_recognition
 
-# import time
-# import typing
+from openai import OpenAI
 
 
 OPENAI_KEY = os.environ.get("OPENAI_KEY", "")
@@ -24,9 +23,10 @@ def print_tts_info(tts) -> None:
 def create_response_text(messages: list) -> str:
     print("Sending messages:")
     print(messages)
-    response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
+    client = OpenAI(api_key=OPENAI_KEY)
+    response = client.chat.completions.create(model="gpt-3.5-turbo", messages=messages)
     print(response)
-    response_text = str(response.choices[0]["message"]["content"])
+    response_text = str(response.choices[0].message.content)
     print(response_text)
     return response_text
 
@@ -97,10 +97,8 @@ def transcribe_audio_input(language: str, age: int) -> None:
 
 
 if __name__ == "__main__":
-    if OPENAI_KEY:
-        openai.api_key = OPENAI_KEY
-    else:
-        print("Need to set you openai key: export OPENAI_KEY={your key}")
+    if not OPENAI_KEY:
+        print("Need to set your openai key: export OPENAI_KEY={your key}")
 
     parser = argparse.ArgumentParser()
     parser.add_argument(

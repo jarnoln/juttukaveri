@@ -1,14 +1,13 @@
 import argparse
-import openai
 import os
-
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+from openai import OpenAI
 
 
 def transcribe_file(speech_file):
-    openai.api_key = OPENAI_API_KEY
+    OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+    client = OpenAI(api_key=OPENAI_API_KEY)
     with open(speech_file, "rb") as audio_file:
-        transcript = openai.Audio.transcribe(
+        transcript = client.audio.transcribe(
             "whisper-1", file=audio_file, language="fi"
         )
         print(transcript)
