@@ -114,9 +114,16 @@ def submit_audio(request):
     messages = json.loads(messages_string)
     logger.info("messages: {}".format(str(messages)))
     openai.api_key = settings.OPENAI_API_KEY
-    transcript = handle_uploaded_audio_file(
-        session, audio_file, messages, echo, language_code
-    )
+    try:
+        transcript = handle_uploaded_audio_file(
+            session, audio_file, messages, echo, language_code
+        )
+    except openai.error.RateLimitError as exc:
+        logger.warning("No more OpenAI credits or rate limits exceeded: {}".format(exc))
+        message = "OpenAI rate limits exceeded"
+        return Response(
+            data={"message": message}, status=status.HTTP_429_TOO_MANY_REQUESTS
+        )
     return Response(transcript)
 
 
